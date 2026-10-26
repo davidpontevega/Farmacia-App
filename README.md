@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Farmacia POS
 
-## Getting Started
+Punto de venta para farmacia: catálogo con lotes y vencimientos (FEFO), ventas con pago mixto, caja por turnos, compras, devoluciones y reportes.
 
-First, run the development server:
+Es la reescritura de un sistema previo en .NET + Supabase al stack siguiente.
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · TypeScript estricto · Tailwind 4 · shadcn/ui · Neon Postgres · Drizzle ORM · Clerk · TanStack Query · Zustand · Zod · Recharts.
+
+## Estado
+
+| Spec | Tema | Estado |
+|---|---|---|
+| 001 | Esquema de datos (Drizzle + Neon) | Hecho |
+| 002 | Autenticación (Clerk, solo por invitación) y permisos | Hecho |
+| 003 | Productos y lotes | En curso |
+| — | Ventas, caja, compras, devoluciones, reportes | Pendiente |
+
+Los specs viven en [`docs/specs/`](docs/specs). La arquitectura y la estructura de carpetas están en [`docs/SETUP.md`](docs/SETUP.md); las reglas del proyecto, en [`CLAUDE.md`](CLAUDE.md).
+
+## Puesta en marcha
+
+Requisitos: Node 20 o superior, una base en [Neon](https://neon.tech) y una aplicación en [Clerk](https://clerk.com).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # completar los valores
+npm run db:migrate
+npm run db:seed
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.npmrc` fija `legacy-peer-deps=true`: los peers opcionales de `@hookform/resolvers` chocan con zod.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Variables de entorno
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Para qué |
+|---|---|
+| `DATABASE_URL` | Cadena de conexión de Neon |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | Claves de la app de Clerk |
+| `NEXT_PUBLIC_CLERK_SIGN_IN_URL` | `/sign-in` |
+| `CLERK_WEBHOOK_SIGNING_SECRET` | Firma del webhook (opcional en local) |
+| `SUPER_ADMIN_EMAIL` | Correo del administrador inicial; lo usa `db:seed` |
+| `NEXT_PUBLIC_APP_URL` | URL base; los enlaces de invitación apuntan aquí (obligatoria en producción) |
+| `ANTHROPIC_API_KEY` | Lectura de facturas en compras (aún sin usar) |
 
-## Learn More
+### Configurar Clerk
 
-To learn more about Next.js, take a look at the following resources:
+1. En **Configure → Access mode**, elegir **Invite-only**.
+2. En **User & authentication**, dejar activos solo correo y contraseña; quitar los proveedores sociales en **SSO connections**.
+3. Crear en **Users** el usuario con el mismo correo que `SUPER_ADMIN_EMAIL`. En su primer inicio de sesión queda enlazado al administrador sembrado.
+4. Opcional: registrar `<URL>/api/webhooks/clerk` con los eventos `user.created`, `user.updated` y `user.deleted`. Sin el webhook todo funciona; el enlace se hace en el primer inicio de sesión.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Comandos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` / `build` | Servidor de desarrollo / build de producción |
+| `npm run typecheck` / `lint` / `test` | Verificaciones |
+| `npm run db:generate` | Genera una migración desde el esquema |
+| `npm run db:migrate` | Aplica las migraciones |
+| `npm run db:seed` | Permisos, roles, super admin y productos de ejemplo (idempotente) |
+| `npm run db:studio` | Explorador de la base |
 
-## Deploy on Vercel
+## Cómo está organizado
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+Componente -> hook (TanStack Query) -> service (axios) -> Route Handler
+           -> repositorio -> Drizzle -> Neon Postgres
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Autenticación** la resuelve Clerk; **autorización**, Postgres: cada endpoint exige un código de permiso (`requirePermission('sales.create')`) y comprueba que el usuario siga activo.
+- **Dinero** en enteros (centavos), nunca decimales.
+- **Ventas, caja y stock** se escriben siempre dentro de una transacción.
+- El stock de un lote es la suma de sus movimientos; no hay columna de stock que pueda desincronizarse.
+
+## Cómo se trabaja
+
+Cada cambio parte de un spec en `docs/specs/NNN-slug.md` que se aprueba antes de escribir código. Los agentes de `.claude/agents/` (orchestrator, spec, developer, reviewer) siguen ese flujo.
