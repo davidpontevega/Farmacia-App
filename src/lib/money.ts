@@ -25,3 +25,8 @@ export function formatSoles(cents: number) {
 export function centsToInput(cents: number) {
   return formatSoles(cents).replace("S/ ", "");
 }
+
+/** 250 -> "+S/ 2.50", -250 -> "-S/ 2.50", 0 -> "S/ 0.00" (diferencias de caja). */
+export function formatSolesSigned(cents: number) {
+  return cents > 0 ? `+${formatSoles(cents)}` : formatSoles(cents);
+}

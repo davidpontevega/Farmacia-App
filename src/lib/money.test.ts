@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { centsToInput, formatSoles, isValidSoles, toCents } from "./money";
+import { centsToInput, formatSoles, formatSolesSigned, isValidSoles, toCents } from "./money";
 
 test("toCents convierte soles a centavos sin errores de float", () => {
   assert.equal(toCents("2.50"), 250);
@@ -24,4 +24,10 @@ test("formatSoles y centsToInput", () => {
   assert.equal(formatSoles(0), "S/ 0.00");
   assert.equal(formatSoles(-150), "-S/ 1.50");
   assert.equal(centsToInput(1999), "19.99");
+});
+
+test("formatSolesSigned marca el signo de sobrantes y faltantes", () => {
+  assert.equal(formatSolesSigned(200), "+S/ 2.00");
+  assert.equal(formatSolesSigned(-200), "-S/ 2.00");
+  assert.equal(formatSolesSigned(0), "S/ 0.00");
 });

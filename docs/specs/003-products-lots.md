@@ -1,7 +1,7 @@
 ---
 id: 003
 title: Productos, lotes e inventario
-status: in-review
+status: done
 module: products
 scope: both
 ---
@@ -25,7 +25,7 @@ No incluye: selección FEFO y descuento de stock en ventas (spec de ventas, que 
 - [x] AC7 — El listado muestra por producto: stock total, stock mínimo, próximo vencimiento (solo lotes con stock > 0) y un estado `Agotado | Vencido | Por vencer (≤ 30 días) | Stock bajo | OK`, con prioridad en ese orden.
 - [x] AC8 — La búsqueda `q` filtra por nombre comercial o genérico sin distinguir mayúsculas; el listado se pagina (50 por página) y devuelve el total.
 - [x] AC9 — El kardex lista movimientos (fecha, producto, lote, tipo, cantidad con signo, motivo, usuario) filtrables por producto y rango de fechas, máximo 200 filas, y solo lo ve quien tiene `inventory.kardex`.
-- [ ] AC10 — Un cajero ve `/admin/products` en solo lectura (sin botones de crear/editar) y no puede abrir `/admin/inventory` ni los endpoints de lotes, ajustes o kardex (403).
+- [x] AC10 — Un cajero ve `/admin/products` en solo lectura (sin botones de crear/editar) y no puede abrir `/admin/inventory` ni los endpoints de lotes, ajustes o kardex (403).
 - [x] AC11 — Desactivar un producto no borra nada: deja de aparecer por defecto en el listado, y se puede reactivar.
 
 ## Datos
@@ -98,4 +98,4 @@ AC10 y la parte de UI de los demás (formularios, tablas, redirecciones) pendien
 Reviewer: APROBADO en la primera vuelta (sin bloqueantes ni mayores). Menores corregidos: orden estable del listado (`commercialName, id`), tope de `page`, validación `from <= to` del kardex, `/admin` sin 500 para sesión caída, `KARDEX_LIMIT` movido a `src/lib/constants.ts`.
 Menores diferidos: (a) el listado agrega `lot_stock` completo dos veces (subconsulta de vencimiento + `product_stock`); acotarlo a los ids de la página si el historial de movimientos crece; (b) en `updateProduct` el `findById` queda fuera de la transacción, así que dos PATCH simultáneos pueden auditar un `from` desactualizado (sin riesgo para los datos).
 **Para el spec de ventas:** toda venta debe bloquear cada lote con `lockLot` (`FOR UPDATE`) antes de descontar; AC6 (stock nunca negativo) solo se sostiene si ventas y ajustes usan el mismo bloqueo.
-Pendiente: AC10 (prueba manual del cajero) para pasar a `done`.
+AC10 verificado a mano (cajero) por el usuario. Spec cerrado.

@@ -16,6 +16,9 @@ export function handle<C>(fn: Handler<C>): Handler<C> {
           { status: 400 },
         );
       }
+      if (err instanceof SyntaxError) {
+        return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
+      }
       if (err instanceof AppError) {
         return NextResponse.json(
           { error: err.message, fields: err.fields },

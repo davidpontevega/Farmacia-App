@@ -18,6 +18,8 @@ export const cashShifts = pgTable(
       .references(() => users.id),
     openingAmount: integer("opening_amount").notNull(),
     closingAmount: integer("closing_amount"),
+    countedCash: integer("counted_cash"),
+    countedYape: integer("counted_yape"),
     systemAmount: integer("system_amount"),
     difference: integer("difference"),
     totalCash: integer("total_cash").notNull().default(0),
