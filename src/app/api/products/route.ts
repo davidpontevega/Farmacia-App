@@ -13,9 +13,9 @@ export const GET = handle(async (req) => {
   const query = listProductsQuerySchema.parse(
     Object.fromEntries(new URL(req.url).searchParams),
   );
-  const { items, total } = await productRepo.list({ ...query, pageSize: PAGE_SIZE });
-
   const today = todayLima();
+  const { items, total } = await productRepo.list({ ...query, pageSize: PAGE_SIZE, today });
+
   const body: ProductsResponse = {
     total,
     items: items.map((p) => ({
@@ -28,6 +28,7 @@ export const GET = handle(async (req) => {
       minStock: p.minStock,
       isActive: p.isActive,
       stock: p.stock,
+      sellableStock: p.sellableStock,
       nextExpiry: p.nextExpiry,
       status: getStockStatus({
         stock: p.stock,

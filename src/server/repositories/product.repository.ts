@@ -1,4 +1,4 @@
-import { and, count, eq, getTableColumns, ilike, or, sql } from "drizzle-orm";
+import { and, count, eq, getTableColumns, ilike, inArray, or, sql } from "drizzle-orm";
 import { db } from "@/server/db";
 import type { Executor } from "@/server/db/types";
 import { lotStock, productStock, products, type Product } from "@/server/db/schema";
@@ -10,6 +10,8 @@ export async function list(params: {
   page: number;
   pageSize: number;
   includeInactive: boolean;
+  /** Hoy en Lima (`YYYY-MM-DD`): separa el stock vendible del vencido. */
+  today: string;
 }) {
   const pattern = params.q ? `%${escapeLike(params.q)}%` : undefined;
   const where = and(
@@ -29,6 +31,9 @@ export async function list(params: {
       nextExpiry: sql<string | null>`min(${lotStock.expiryDate}) filter (where ${lotStock.stock} > 0)`.as(
         "next_expiry",
       ),
+      sellable: sql`coalesce(sum(${lotStock.stock}) filter (where ${lotStock.expiryDate} >= ${params.today}::date), 0)`
+        .mapWith(Number)
+        .as("sellable"),
     })
     .from(lotStock)
     .groupBy(lotStock.productId)
@@ -40,6 +45,7 @@ export async function list(params: {
         ...getTableColumns(products),
         stock: sql<number>`coalesce(${productStock.stock}, 0)`,
         nextExpiry: expiry.nextExpiry,
+        sellableStock: sql`coalesce(${expiry.sellable}, 0)`.mapWith(Number),
       })
       .from(products)
       .leftJoin(productStock, eq(productStock.productId, products.id))
@@ -69,4 +75,11 @@ export async function update(
   ex: Executor = db,
 ) {
   await ex.update(products).set(data).where(eq(products.id, id));
+}
+
+export async function findActiveByIds(ids: string[], ex: Executor = db) {
+  return ex
+    .select()
+    .from(products)
+    .where(and(inArray(products.id, ids), eq(products.isActive, true)));
 }

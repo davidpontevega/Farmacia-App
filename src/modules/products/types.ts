@@ -13,6 +13,8 @@ export type ProductListItem = {
   minStock: number;
   isActive: boolean;
   stock: number;
+  /** Stock de lotes no vencidos: lo que de verdad se puede vender. */
+  sellableStock: number;
   nextExpiry: string | null;
   status: StockStatus;
 };

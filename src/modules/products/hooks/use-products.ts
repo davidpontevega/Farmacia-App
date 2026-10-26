@@ -12,11 +12,12 @@ import type { CreateProductInput, UpdateProductInput } from "../schemas";
 import { createProduct, listProducts, updateProduct } from "../services/products.service";
 import type { ProductsQuery } from "../types";
 
-export const useProducts = (params: ProductsQuery) =>
+export const useProducts = (params: ProductsQuery, options?: { enabled?: boolean }) =>
   useQuery({
     queryKey: ["products", params],
     queryFn: () => listProducts(params),
     placeholderData: keepPreviousData,
+    enabled: options?.enabled,
   });
 
 function useProductsMutation<V>(fn: (v: V) => Promise<unknown>, success: string) {

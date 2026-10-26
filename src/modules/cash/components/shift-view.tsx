@@ -7,6 +7,7 @@ import { CloseShiftCard } from "./close-shift-card";
 import { MovementForm } from "./movement-form";
 import { MovementsList } from "./movements-list";
 import { OpenShiftCard } from "./open-shift-card";
+import { ShiftSalesCard } from "./shift-sales-card";
 import { ShiftSummaryCard } from "./shift-summary";
 
 export function ShiftView() {
@@ -36,6 +37,7 @@ export function ShiftView() {
           </div>
         </div>
       )}
+      {data.shift !== null && <ShiftSalesCard />}
     </div>
   );
 }

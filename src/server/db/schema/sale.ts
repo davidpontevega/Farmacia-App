@@ -1,8 +1,11 @@
-import { check, index, integer, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { check, index, integer, pgSequence, pgTable, text, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createdAt, id, paymentMethodEnum, saleStatusEnum } from "./_shared";
 import { cashShifts } from "./cash-shift";
 import { users } from "./user";
+
+// Número de ticket. No es transaccional: una venta que falla puede dejar un salto.
+export const ticketSeq = pgSequence("ticket_seq", { startWith: 1 });
 
 export const sales = pgTable(
   "sales",

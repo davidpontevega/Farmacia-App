@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lt, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt, sql } from "drizzle-orm";
 import { db } from "@/server/db";
 import { KARDEX_LIMIT } from "@/lib/constants";
 import type { Executor } from "@/server/db/types";
@@ -91,4 +91,41 @@ export async function kardex(filters: {
     )
     .orderBy(desc(m.createdAt))
     .limit(KARDEX_LIMIT);
+}
+
+/**
+ * Lotes vendibles de un producto en orden FEFO (vencen primero, luego más antiguos),
+ * bloqueados con FOR UPDATE hasta el fin de la transacción. Excluye vencidos e inactivos.
+ * Leer el stock DESPUÉS de este lock, en otra sentencia (ver `stockByLots`).
+ */
+export async function lockFefoLots(productId: string, today: string, ex: Executor) {
+  const rows = await ex
+    .select({ id: lots.id })
+    .from(lots)
+    .where(
+      and(eq(lots.productId, productId), eq(lots.isActive, true), gte(lots.expiryDate, today)),
+    )
+    .orderBy(lots.expiryDate, lots.createdAt, lots.id)
+    .for("update");
+  return rows.map((r) => r.id);
+}
+
+export async function stockByLots(lotIds: string[], ex: Executor) {
+  if (lotIds.length === 0) return new Map<string, number>();
+  const rows = await ex
+    .select({
+      lotId: inventoryMovements.lotId,
+      stock: sql`coalesce(sum(${inventoryMovements.quantity}), 0)`.mapWith(Number),
+    })
+    .from(inventoryMovements)
+    .where(inArray(inventoryMovements.lotId, lotIds))
+    .groupBy(inventoryMovements.lotId);
+  return new Map(rows.map((r) => [r.lotId, r.stock]));
+}
+
+export async function insertMovements(
+  rows: (typeof inventoryMovements.$inferInsert)[],
+  ex: Executor,
+) {
+  if (rows.length > 0) await ex.insert(inventoryMovements).values(rows);
 }
