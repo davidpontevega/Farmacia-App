@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+import { ClerkLoaded, UserButton } from "@clerk/nextjs";
 import { NAV_ITEMS } from "@/lib/nav";
 
 export function AppShell({
@@ -21,7 +21,9 @@ export function AppShell({
             </Link>
           ))}
         </nav>
-        <UserButton />
+        <ClerkLoaded>
+          <UserButton />
+        </ClerkLoaded>
       </header>
       <main className="flex-1 p-4">{children}</main>
     </div>

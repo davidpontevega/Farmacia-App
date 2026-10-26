@@ -3,6 +3,7 @@ import { isFarExpiry, parseExpiry, suggestUnitsPerPackage, unitCost } from "@/li
 import { isValidSoles, toCents } from "@/lib/money";
 import { autoMatch, type CatalogName } from "@/lib/match";
 import { MAX_SALE_PRICE, MAX_UNIT_COST, MAX_UNITS_PER_PACKAGE } from "@/lib/purchases";
+import type { OcrRow } from "@/lib/ocr/fix";
 import type { PastedRow } from "@/lib/paste-rows";
 import type { CreatePurchaseInput } from "./schemas";
 import type { SupplierLink } from "./types";
@@ -31,6 +32,10 @@ export type PurchaseRow = {
   confirmed: boolean;
   /** La persona escribió las unidades por presentación: ya no las pisa un vínculo aprendido. */
   unitsEdited: boolean;
+  /** Campos que el OCR leyó con dudas; se limpian al editarlos. */
+  uncertain?: string[];
+  /** Fila del documento leído: `página:ítem`, para resaltarla en el visor. */
+  ocrRef?: string;
 };
 
 let counter = 0;
@@ -223,6 +228,15 @@ export function rowFromPasted(p: PastedRow, links: SupplierLink[], catalog: Cata
   return applyAutoMatch(applyLinks(base, links), catalog);
 }
 
+export function rowFromOcr(o: OcrRow, ocrRef: string, links: SupplierLink[], catalog: CatalogName[]): PurchaseRow {
+  const row = rowFromPasted(
+    { code: o.supplierCode, qty: o.qty, um: o.um, description: o.description, expiry: o.expiry, price: o.price, total: o.total },
+    links,
+    catalog,
+  );
+  return { ...row, uncertain: o.uncertain, ocrRef };
+}
+
 export type Header = {
   supplier: string;
   documentNumber: string;
@@ -264,6 +278,12 @@ export function buildPayload(header: Header, rows: PurchaseRow[]): CreatePurchas
  */
 export function applyEdit(base: PurchaseRow, patch: Partial<PurchaseRow>): PurchaseRow {
   const next: PurchaseRow = { ...base, confirmed: false, ...patch };
+  if (base.uncertain) {
+    // Cantidad × precio = total: corregir uno de los tres resuelve la duda de los otros dos.
+    const trio = ["qty", "packagePrice", "lineTotal"];
+    const clears = (f: string) => f in patch || (trio.includes(f) && trio.some((t) => t in patch));
+    next.uncertain = base.uncertain.filter((f) => !clears(f));
+  }
   if (patch.supplierCode !== undefined && base.productSource === "linked" && patch.productId === undefined) {
     return {
       ...next,

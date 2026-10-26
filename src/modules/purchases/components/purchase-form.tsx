@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { todayLima } from "@/lib/dates";
 import { centsToInput, formatSoles, formatSolesSigned, isValidSoles, toCents } from "@/lib/money";
+import { isShippingLine } from "@/lib/ocr/document";
 import { documentBalance, suggestSalePrice } from "@/lib/purchase-rules";
 import { MAX_ITEMS, MAX_PURCHASE_TOTAL, nameKey } from "@/lib/purchases";
 import { useDebounce } from "@/lib/use-debounce";
@@ -32,6 +33,7 @@ import {
   emptyRow,
   isBlankRow,
   newKey,
+  rowFromOcr,
   rowFromPasted,
   rowIssues,
   rowStatus,
@@ -40,6 +42,8 @@ import {
   type PurchaseRow,
 } from "../rows";
 import type { SupplierLink } from "../types";
+import { OcrQuotePanel, type OcrRead } from "./ocr-quote-panel";
+import { OcrViewer } from "./ocr-viewer";
 import { PasteRowsDialog } from "./paste-rows-dialog";
 import { PurchaseHeader } from "./purchase-header";
 import { PurchaseRowView } from "./purchase-row";
@@ -83,6 +87,8 @@ export function PurchaseForm() {
   const [margin, setMargin] = useState("");
   const [rows, setRows] = useState<PurchaseRow[]>(() => [emptyRow()]);
   const [pasteOpen, setPasteOpen] = useState(false);
+  const [ocr, setOcr] = useState<{ id: string; pages: OcrRead["pages"]; notes: string[] } | null>(null);
+  const [focusRef, setFocusRef] = useState<string | null>(null);
 
   // Borrador: se guarda solo; si hay uno de una visita anterior, se ofrece restaurarlo antes de guardar encima.
   const stored = useStoredDraft(key);
@@ -127,6 +133,7 @@ export function PurchaseForm() {
         expiry: "",
         lot: "",
         confirmed: false,
+        uncertain: undefined,
       };
       return [...prev.slice(0, i + 1), copy, ...prev.slice(i + 1)];
     });
@@ -140,6 +147,79 @@ export function PurchaseForm() {
       p.row ? rowFromPasted(p.row, links, catalog) : { ...emptyRow(), description: p.raw },
     );
     setRows((prev) => [...(prev.length === 1 && isBlankRow(prev[0]) ? [] : prev), ...added]);
+  };
+
+  // Las imágenes del documento viven solo en memoria: se liberan al cerrar el visor o la página.
+  useEffect(() => {
+    const pages = ocr?.pages;
+    return () => pages?.forEach((p) => URL.revokeObjectURL(p.url));
+  }, [ocr]);
+
+  // La lectura dura decenas de segundos: addOcr debe ver el catálogo y los vínculos de ahora, no los de cuando se eligió el archivo.
+  const latest = useRef({ links, catalog, header, documentTotal });
+  useEffect(() => {
+    latest.current = { links, catalog, header, documentTotal };
+  });
+
+  const closeOcr = () => {
+    setOcr(null);
+    setFocusRef(null);
+    setRows((prev) => prev.map((r) => (r.ocrRef ? { ...r, ocrRef: undefined } : r)));
+  };
+
+  const addOcr = (read: OcrRead) => {
+    const { links: nowLinks, catalog: nowCatalog, header: nowHeader, documentTotal: nowTotal } = latest.current;
+    // El envío y el flete son un cargo del documento, no un producto: van a «Otros gastos».
+    const isShipping = ({ row }: OcrRead["rows"][number]) => !row.expiry && isShippingLine(row.description);
+    const shippingCents = read.rows
+      .filter(isShipping)
+      .reduce((sum, { row }) => sum + (isValidSoles(row.total || row.price) ? toCents(row.total || row.price) : 0), 0);
+    const added = read.rows
+      .filter((r) => !isShipping(r))
+      .map(({ page, row }) => rowFromOcr(row, `${read.id}:${page}:${row.n}`, nowLinks, nowCatalog));
+    setRows((prev) => [...(prev.length === 1 && isBlankRow(prev[0]) ? [] : prev), ...added]);
+
+    // Datos del documento: solo donde no hay nada escrito (la fecha de hoy es el valor por defecto,
+    // no algo que la persona eligiera), y el aviso nombra solo lo que se aplicó.
+    const { info } = read;
+    const patch: Partial<Header> = {};
+    const applied: string[] = [];
+    const notes: string[] = [];
+    if (!nowHeader.supplier.trim() && info.supplierName) {
+      patch.supplier = info.supplierName;
+      applied.push("proveedor");
+    }
+    if (shippingCents > 0) {
+      if (nowHeader.otherCharges.trim()) {
+        notes.push(`El documento trae envío por ${formatSoles(shippingCents)} y no se aplicó porque ya hay «Otros gastos».`);
+      } else {
+        patch.otherCharges = centsToInput(shippingCents);
+        applied.push(`otros gastos (envío ${formatSoles(shippingCents)})`);
+      }
+    }
+    if (!nowHeader.documentNumber.trim() && info.documentNumber) {
+      patch.documentNumber = info.documentNumber;
+      applied.push("número");
+    }
+    if ((!nowHeader.documentDate || nowHeader.documentDate === today) && info.documentDate && info.documentDate <= today) {
+      patch.documentDate = info.documentDate;
+      applied.push("fecha");
+    }
+    if (Object.keys(patch).length) setHeader((h) => ({ ...h, ...patch }));
+    if (!nowTotal.trim() && info.totalCents !== null) {
+      setDocumentTotal(centsToInput(info.totalCents));
+      applied.push("total");
+    }
+    setFocusRef(null);
+    setOcr({
+      id: read.id,
+      pages: read.pages,
+      notes: [
+        ...(applied.length ? [`Leído del documento (verifica): ${applied.join(", ")}.`] : []),
+        ...notes,
+        ...read.warnings,
+      ],
+    });
   };
 
   const createUnmatchedAsNew = () =>
@@ -209,6 +289,7 @@ export function PurchaseForm() {
     setHeader(initialHeader());
     setDocumentTotal("");
     setMargin("");
+    setOcr(null);
     clearDraft(key);
   };
 
@@ -260,6 +341,7 @@ export function PurchaseForm() {
       />
 
       <div className="flex flex-wrap items-end gap-2">
+        <OcrQuotePanel onRead={addOcr} />
         <Button type="button" variant="outline" onClick={() => setPasteOpen(true)}>
           Pegar filas
         </Button>
@@ -281,6 +363,19 @@ export function PurchaseForm() {
           </Button>
         </div>
       </div>
+
+      {ocr && (
+        <>
+          {ocr.notes.length > 0 && (
+            <ul role="status" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-sm">
+              {ocr.notes.map((n, i) => (
+                <li key={i}>{n}</li>
+              ))}
+            </ul>
+          )}
+          <OcrViewer readId={ocr.id} pages={ocr.pages} focusRef={focusRef} onClose={closeOcr} />
+        </>
+      )}
 
       <div className="overflow-x-auto rounded-lg border">
         <Table>
@@ -305,6 +400,7 @@ export function PurchaseForm() {
                 onRemove={removeRow}
                 onDuplicate={duplicateRow}
                 onEnterLast={enterLast}
+                onFocusRow={setFocusRef}
               />
             ))}
           </TableBody>

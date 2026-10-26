@@ -18,11 +18,13 @@ type Props = {
   onRemove: (key: string) => void;
   onDuplicate: (key: string) => void;
   onEnterLast: (index: number) => void;
+  /** Se enfocó esta fila (para resaltarla en el visor del documento). */
+  onFocusRow?: (ocrRef: string | null) => void;
 };
 
 const cell = "px-1 py-1.5 align-top";
 
-export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove, onDuplicate, onEnterLast }: Props) {
+export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove, onDuplicate, onEnterLast, onFocusRow }: Props) {
   const set = (patch: Partial<PurchaseRow>) => onChange(row.key, patch);
   const d = derive(row);
   const { errors, warnings } = rowIssues(row, today);
@@ -32,11 +34,13 @@ export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove
       ? roundingDiff(d.documentLineCents, d.stockUnits, d.unitCostCents)
       : 0;
 
+  const doubt = (name: string) => (row.uncertain?.includes(name) ? " border-amber-500 ring-1 ring-amber-500" : "");
   const field = (name: keyof PurchaseRow, label: string, width: string, extra?: Partial<React.ComponentProps<typeof Input>>) => (
     <Input
       aria-label={`${label}, fila ${index + 1}`}
       data-col={name}
-      className={width}
+      className={width + doubt(name)}
+      title={doubt(name) ? "Leído con dudas: verifica" : undefined}
       value={String(row[name])}
       onChange={(e) => set({ [name]: e.target.value } as Partial<PurchaseRow>)}
       {...extra}
@@ -44,7 +48,7 @@ export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove
   );
 
   return (
-    <TableRow data-row={index} className={errors.length ? "bg-destructive/5" : pendingWarnings ? "bg-amber-500/10" : undefined}>
+    <TableRow data-row={index} onFocusCapture={() => onFocusRow?.(row.ocrRef ?? null)} className={errors.length ? "bg-destructive/5" : pendingWarnings ? "bg-amber-500/10" : undefined}>
       <TableCell className={cell}>{field("supplierCode", "Código del proveedor", "w-24")}</TableCell>
       <TableCell className={cell}>
         <PurchaseProductCell row={row} rowLabel={`fila ${index + 1}`} catalog={catalog} onChange={set} />

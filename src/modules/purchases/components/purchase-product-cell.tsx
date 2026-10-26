@@ -35,11 +35,14 @@ export function PurchaseProductCell({ row, rowLabel, catalog, onChange }: Props)
     setTimeout(() => tr?.querySelector<HTMLInputElement>(`input[data-col="${col}"]`)?.focus(), 0);
   };
 
+  const doubtful = row.uncertain?.includes("description") ?? false;
+
   if (row.isNew) {
     return (
       <div ref={root} className="flex min-w-56 flex-col gap-1">
         <Input
           data-col="newName"
+          className={doubtful ? "border-amber-500 ring-1 ring-amber-500" : undefined}
           aria-label={`Nombre del producto nuevo, ${rowLabel}`}
           value={row.description}
           onChange={(e) => onChange({ description: e.target.value })}
@@ -110,7 +113,9 @@ export function PurchaseProductCell({ row, rowLabel, catalog, onChange }: Props)
 
   return (
     <div ref={root} className="relative flex min-w-56 flex-col gap-1">
-      {row.description && <span className="text-xs text-muted-foreground">{row.description}</span>}
+      {row.description && (
+        <span className={doubtful ? "text-xs text-amber-600" : "text-xs text-muted-foreground"}>{row.description}</span>
+      )}
       {/* Combobox: flechas para moverse, Enter para elegir, Escape para cerrar. */}
       <Input
         data-col="search"
