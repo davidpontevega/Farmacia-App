@@ -1,5 +1,5 @@
 // Cuadre de caja. Todo en centavos.
-//   efectivo esperado = apertura + ventas en efectivo - retiros - canjes
+//   efectivo esperado = apertura + ventas en efectivo - retiros - canjes - devoluciones
 //   Yape esperado     = ventas Yape + canjes   (en un canje entra dinero por Yape)
 
 export type ShiftTotals = {
@@ -8,10 +8,12 @@ export type ShiftTotals = {
   yapeSales: number;
   withdrawals: number;
   exchanges: number;
+  /** Reembolsos de devoluciones, pagados en efectivo de la gaveta. */
+  refunds: number;
 };
 
 export const expectedCash = (t: ShiftTotals) =>
-  t.opening + t.cashSales - t.withdrawals - t.exchanges;
+  t.opening + t.cashSales - t.withdrawals - t.exchanges - t.refunds;
 
 export const expectedYape = (t: ShiftTotals) => t.yapeSales + t.exchanges;
 

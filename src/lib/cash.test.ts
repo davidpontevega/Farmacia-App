@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { closeDifferences, expectedCash, expectedYape } from "./cash";
 
-const base = { opening: 10000, cashSales: 5000, yapeSales: 3000, withdrawals: 0, exchanges: 0 };
+const base = { opening: 10000, cashSales: 5000, yapeSales: 3000, withdrawals: 0, exchanges: 0, refunds: 0 };
 
 test("recién abierto: efectivo = apertura, Yape = 0", () => {
-  const t = { opening: 10000, cashSales: 0, yapeSales: 0, withdrawals: 0, exchanges: 0 };
+  const t = { opening: 10000, cashSales: 0, yapeSales: 0, withdrawals: 0, exchanges: 0, refunds: 0 };
   assert.equal(expectedCash(t), 10000);
   assert.equal(expectedYape(t), 0);
 });
@@ -44,4 +44,11 @@ test("un faltante en efectivo no se compensa a ojos del detalle con un sobrante 
   assert.equal(d.difference, 0);
   assert.equal(d.differenceCash, -1000);
   assert.equal(d.differenceYape, 1000);
+});
+
+test("una devolución baja el efectivo esperado y no toca el Yape", () => {
+  const t = { ...base, refunds: 750 };
+  assert.equal(expectedCash(t), 14250);
+  assert.equal(expectedYape(t), 3000);
+  assert.equal(closeDifferences(t, { cash: 14250, yape: 3000 }).difference, 0);
 });

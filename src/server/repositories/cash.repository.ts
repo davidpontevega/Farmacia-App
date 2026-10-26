@@ -84,5 +84,6 @@ export async function shiftTotals(shiftId: string, ex: Executor = db) {
     ...s,
     withdrawals: total("CASH_WITHDRAWAL"),
     exchanges: total("YAPE_TO_CASH_EXCHANGE"),
+    refunds: total("CASH_REFUND"),
   };
 }

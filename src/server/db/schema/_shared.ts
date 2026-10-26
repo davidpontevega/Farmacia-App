@@ -20,6 +20,7 @@ export const shiftStatusEnum = pgEnum("shift_status", ["OPEN", "CLOSED"]);
 export const cashMovementTypeEnum = pgEnum("cash_movement_type", [
   "CASH_WITHDRAWAL",
   "YAPE_TO_CASH_EXCHANGE",
+  "CASH_REFUND",
 ]);
 export const paymentMethodEnum = pgEnum("payment_method", [
   "CASH",

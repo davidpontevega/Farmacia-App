@@ -4,6 +4,7 @@ import { id, productConditionEnum } from "./_shared";
 import { lots } from "./lot";
 import { products } from "./product";
 import { returns } from "./return";
+import { saleItems } from "./sale-item";
 
 export const returnItems = pgTable(
   "return_items",
@@ -12,6 +13,10 @@ export const returnItems = pgTable(
     returnId: uuid("return_id")
       .notNull()
       .references(() => returns.id),
+    // Línea de la venta que se devuelve: de ahí salen precio y lote.
+    saleItemId: uuid("sale_item_id")
+      .notNull()
+      .references(() => saleItems.id),
     productId: uuid("product_id")
       .notNull()
       .references(() => products.id),
@@ -26,5 +31,6 @@ export const returnItems = pgTable(
     check("return_items_quantity_positive", sql`${t.quantity} > 0`),
     check("return_items_price_nonneg", sql`${t.unitPrice} >= 0`),
     index("return_items_return_idx").on(t.returnId),
+    index("return_items_sale_item_idx").on(t.saleItemId),
   ],
 );

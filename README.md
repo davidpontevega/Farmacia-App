@@ -17,7 +17,8 @@ Next.js 16 (App Router) · React 19 · TypeScript estricto · Tailwind 4 · shad
 | 003 | Productos, lotes e inventario (ajustes y kardex) | Hecho |
 | 004 | Caja (turnos, retiros, canjes y cierre) | Hecho |
 | 005 | Ventas y punto de venta (FEFO, pagos, anulación) | Hecho |
-| — | Compras, devoluciones, reportes | Pendiente |
+| 006 | Devoluciones (por ticket, reembolso en efectivo) | Hecho |
+| — | Compras, reportes | Pendiente |
 
 Los specs viven en [`docs/specs/`](docs/specs). La arquitectura y la estructura de carpetas están en [`docs/SETUP.md`](docs/SETUP.md); las reglas del proyecto, en [`CLAUDE.md`](CLAUDE.md).
 

@@ -1,5 +1,7 @@
 // Forma JSON de GET /api/cash/shift. Montos en centavos.
-export type MovementType = "CASH_WITHDRAWAL" | "YAPE_TO_CASH_EXCHANGE";
+// Los que el cajero registra a mano; CASH_REFUND lo crea una devolución.
+export type ManualMovementType = "CASH_WITHDRAWAL" | "YAPE_TO_CASH_EXCHANGE";
+export type MovementType = ManualMovementType | "CASH_REFUND";
 
 export type ShiftSummary = {
   cashSales: number;
@@ -7,6 +9,7 @@ export type ShiftSummary = {
   salesCount: number;
   withdrawals: number;
   exchanges: number;
+  refunds: number;
   expectedCash: number;
   expectedYape: number;
 };
@@ -38,4 +41,5 @@ export type CloseShiftResult = {
 export const MOVEMENT_LABEL: Record<MovementType, string> = {
   CASH_WITHDRAWAL: "Retiro efectivo",
   YAPE_TO_CASH_EXCHANGE: "Canje Yape→Ef.",
+  CASH_REFUND: "Devolución",
 };

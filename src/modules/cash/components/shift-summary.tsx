@@ -41,6 +41,9 @@ export function ShiftSummaryCard({
         {s.withdrawals > 0 && (
           <Row label="Retiros de efectivo" value={`- ${formatSoles(s.withdrawals)}`} tone="minus" />
         )}
+        {s.refunds > 0 && (
+          <Row label="Devoluciones en efectivo" value={`- ${formatSoles(s.refunds)}`} tone="minus" />
+        )}
         {s.exchanges > 0 && (
           <Row label="Canjes Yape→Efectivo" value={`- ${formatSoles(s.exchanges)}`} tone="minus" />
         )}

@@ -10,10 +10,10 @@ import { usePermissions } from "@/modules/auth/hooks/use-permissions";
 import { useState } from "react";
 import { useAddMovement } from "../hooks/use-cash";
 import { movementFormSchema, type MovementFormValues } from "../schemas";
-import type { MovementType } from "../types";
+import type { ManualMovementType } from "../types";
 
 const TABS: {
-  type: MovementType;
+  type: ManualMovementType;
   label: string;
   hint: string;
   permission: "cash.withdraw" | "cash.exchange";
@@ -32,7 +32,7 @@ const TABS: {
   },
 ];
 
-function MovementFields({ type, hint }: { type: MovementType; hint: string }) {
+function MovementFields({ type, hint }: { type: ManualMovementType; hint: string }) {
   const add = useAddMovement();
   const {
     register,
@@ -74,7 +74,7 @@ function MovementFields({ type, hint }: { type: MovementType; hint: string }) {
 export function MovementForm() {
   const { can } = usePermissions();
   const tabs = TABS.filter((t) => can(t.permission));
-  const [active, setActive] = useState<MovementType | null>(null);
+  const [active, setActive] = useState<ManualMovementType | null>(null);
   const current = tabs.find((t) => t.type === active) ?? tabs[0];
 
   if (!current) return null;

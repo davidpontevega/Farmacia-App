@@ -16,6 +16,7 @@ import type { CreateSaleInput } from "@/modules/sales/schemas";
 import * as cashRepo from "@/server/repositories/cash.repository";
 import * as inventoryRepo from "@/server/repositories/inventory.repository";
 import * as productRepo from "@/server/repositories/product.repository";
+import * as returnRepo from "@/server/repositories/return.repository";
 import * as saleRepo from "@/server/repositories/sale.repository";
 import { lockOpenShift } from "./cash.service";
 
@@ -161,6 +162,10 @@ export async function voidSale(actorId: string, saleId: string) {
     const sale = await saleRepo.lockSale(saleId, tx);
     if (!sale) throw new NotFoundError("Venta no encontrada");
     if (sale.status === "VOIDED") throw new ConflictError("La venta ya está anulada");
+    // Con la venta bloqueada, una devolución concurrente ya confirmó o espera detrás.
+    if (await returnRepo.hasReturns(sale.id, tx)) {
+      throw new ConflictError("La venta tiene devoluciones; no se puede anular");
+    }
 
     await cashRepo.lockShift(sale.shiftId, tx);
 
