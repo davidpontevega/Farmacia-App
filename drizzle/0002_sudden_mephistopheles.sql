@@ -1,0 +1,4 @@
+DROP VIEW "public"."product_stock";--> statement-breakpoint
+DROP VIEW "public"."lot_stock";--> statement-breakpoint
+CREATE VIEW "public"."lot_stock" AS (select "lots"."id" as "lot_id", "lots"."product_id", "lots"."lot_number", "lots"."expiry_date", coalesce(sum("inventory_movements"."quantity"), 0)::int as "stock" from "lots" left join "inventory_movements" on "inventory_movements"."lot_id" = "lots"."id" group by "lots"."id");--> statement-breakpoint
+CREATE VIEW "public"."product_stock" AS (select "products"."id" as "product_id", coalesce(sum("stock"), 0)::int as "stock" from "products" left join "lot_stock" on "lot_stock"."product_id" = "products"."id" group by "products"."id");
