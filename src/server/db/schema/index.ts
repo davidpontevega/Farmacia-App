@@ -13,6 +13,8 @@ import { returns } from "./return";
 import { roles } from "./role";
 import { saleItems } from "./sale-item";
 import { sales } from "./sale";
+import { supplierProducts } from "./supplier-product";
+import { suppliers } from "./supplier";
 import { users } from "./user";
 
 export * from "./_shared";
@@ -32,6 +34,8 @@ export * from "./role";
 export * from "./sale-item";
 export * from "./sale";
 export * from "./stock-views";
+export * from "./supplier-product";
+export * from "./supplier";
 export * from "./user-role";
 export * from "./user";
 
@@ -50,3 +54,5 @@ export type Return = InferSelectModel<typeof returns>;
 export type ReturnItem = InferSelectModel<typeof returnItems>;
 export type Purchase = InferSelectModel<typeof purchases>;
 export type PurchaseItem = InferSelectModel<typeof purchaseItems>;
+export type Supplier = InferSelectModel<typeof suppliers>;
+export type SupplierProduct = InferSelectModel<typeof supplierProducts>;

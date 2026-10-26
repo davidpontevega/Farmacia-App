@@ -9,6 +9,7 @@ export function usePermissions() {
   const permissions = data?.permissions ?? [];
   return {
     isLoading,
+    userId: data?.id ?? null,
     can: (code: PermissionCode) => permissions.includes(code),
   };
 }

@@ -18,7 +18,9 @@ Next.js 16 (App Router) · React 19 · TypeScript estricto · Tailwind 4 · shad
 | 004 | Caja (turnos, retiros, canjes y cierre) | Hecho |
 | 005 | Ventas y punto de venta (FEFO, pagos, anulación) | Hecho |
 | 006 | Devoluciones (por ticket, reembolso en efectivo) | Hecho |
-| — | Compras, reportes | Pendiente |
+| 007 | Compras (ingreso de mercadería, productos nuevos, historial) | Hecho |
+| 008 | Registro ágil de compras (tabla, proveedor, unidades, pegar filas) | Hecho |
+| — | Lectura de documentos con OCR, reportes | Pendiente |
 
 Los specs viven en [`docs/specs/`](docs/specs). La arquitectura y la estructura de carpetas están en [`docs/SETUP.md`](docs/SETUP.md); las reglas del proyecto, en [`CLAUDE.md`](CLAUDE.md).
 
@@ -46,7 +48,6 @@ npm run dev                  # http://localhost:3000
 | `CLERK_WEBHOOK_SIGNING_SECRET` | Firma del webhook (opcional en local) |
 | `SUPER_ADMIN_EMAIL` | Correo del administrador inicial; lo usa `db:seed` |
 | `NEXT_PUBLIC_APP_URL` | URL base; los enlaces de invitación apuntan aquí (obligatoria en producción) |
-| `ANTHROPIC_API_KEY` | Lectura de facturas en compras (aún sin usar) |
 
 ### Configurar Clerk
 

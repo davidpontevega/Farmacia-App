@@ -17,7 +17,7 @@ export async function createLotIn(
   actorId: string,
   productId: string,
   input: CreateLotInput,
-  reason = "Alta de lote",
+  opts: { reason?: string; referenceId?: string } = {},
 ) {
   const lot = await inventoryRepo.insertLot(
     {
@@ -37,8 +37,8 @@ export async function createLotIn(
       userId: actorId,
       type: "ENTRY",
       quantity: input.quantity,
-      reason,
-      referenceId: lot.id,
+      reason: opts.reason ?? "Alta de lote",
+      referenceId: opts.referenceId ?? lot.id,
     },
     tx,
   );

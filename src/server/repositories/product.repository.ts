@@ -77,6 +77,21 @@ export async function update(
   await ex.update(products).set(data).where(eq(products.id, id));
 }
 
+/** Nombres de los productos activos, para emparejar descripciones de documentos en el navegador. */
+export async function listNames(ex: Executor = db) {
+  return ex
+    .select({
+      id: products.id,
+      commercialName: products.commercialName,
+      genericName: products.genericName,
+      laboratory: products.laboratory,
+    })
+    .from(products)
+    .where(eq(products.isActive, true))
+    .orderBy(products.commercialName)
+    .limit(10_000);
+}
+
 export async function findActiveByIds(ids: string[], ex: Executor = db) {
   return ex
     .select()

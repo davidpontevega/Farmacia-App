@@ -25,6 +25,11 @@ export async function lotsForProduct(productId: string, ex: Executor = db) {
     .orderBy(lotStock.expiryDate);
 }
 
+export async function lotNumbersOf(productId: string, ex: Executor = db) {
+  const rows = await ex.select({ n: lots.lotNumber }).from(lots).where(eq(lots.productId, productId));
+  return new Set(rows.map((r) => r.n));
+}
+
 export async function insertLot(data: typeof lots.$inferInsert, ex: Executor = db) {
   const [row] = await ex.insert(lots).values(data).returning();
   return row;

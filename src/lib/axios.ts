@@ -16,8 +16,10 @@ api.interceptors.response.use(
 
 export function apiErrorMessage(err: unknown) {
   if (axios.isAxiosError(err)) {
-    const message = (err.response?.data as { error?: string } | undefined)?.error;
-    if (message) return message;
+    const data = err.response?.data as { error?: string; fields?: Record<string, string[]> } | undefined;
+    // El servidor valida campo por campo: se muestran los primeros detalles, no solo "Datos inválidos".
+    const details = Object.values(data?.fields ?? {}).flat().slice(0, 3).join("; ");
+    if (data?.error) return details ? `${data.error}: ${details}` : data.error;
   }
   return "Ocurrió un error inesperado";
 }
