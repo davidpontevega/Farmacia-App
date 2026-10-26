@@ -8,6 +8,7 @@ export const NAV_ITEMS: { href: string; label: string; permission: PermissionCod
   { href: "/admin/inventory", label: "Inventario", permission: "lots.read" },
   { href: "/admin/purchases", label: "Compras", permission: "purchases.create" },
   { href: "/admin/sales", label: "Ventas", permission: "reports.read" },
+  { href: "/admin/reports", label: "Reportes", permission: "reports.read" },
   { href: "/admin/returns", label: "Historial devoluciones", permission: "returns.read" },
   { href: "/admin/users", label: "Usuarios", permission: "users.read" },
 ];
