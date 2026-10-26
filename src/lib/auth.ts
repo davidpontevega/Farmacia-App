@@ -1,4 +1,5 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { writeAudit } from "@/lib/audit";
 import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
@@ -68,4 +69,12 @@ export async function getAuthContext(): Promise<AuthContext | null> {
     }
     throw err;
   }
+}
+
+/** Guarda de página (Server Component): sin sesión válida -> /no-access, sin permiso -> /pos. */
+export async function requirePagePermission(code: PermissionCode): Promise<AuthContext> {
+  const ctx = await getAuthContext();
+  if (!ctx) redirect("/no-access");
+  if (!ctx.permissions.includes(code)) redirect("/pos");
+  return ctx;
 }

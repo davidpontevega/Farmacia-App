@@ -18,7 +18,6 @@ export const products = pgTable(
     genericName: text("generic_name"),
     laboratory: text("laboratory"),
     category: text("category"),
-    barcode: text("barcode").unique(),
     salePrice: integer("sale_price").notNull(),
     minStock: integer("min_stock").notNull().default(0),
     isActive: boolean("is_active").notNull().default(true),

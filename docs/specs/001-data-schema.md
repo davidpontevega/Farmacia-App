@@ -87,3 +87,4 @@ Verificación final: `npm run typecheck && npm run lint` (el `build` lo corre el
 - Desviación T1: cliente con `drizzle-orm/neon-serverless` (Pool/WebSocket), no `neon-http`: el http no soporta `db.transaction`, exigido para ventas/caja.
 - Desviación T12: el seed crea el super admin con `clerk_id = pending:<email>` (requiere `SUPER_ADMIN_EMAIL`); el webhook de Clerk lo reconcilia por email.
 - `drizzle.config.ts` apunta a `schema/index.ts` (no al directorio): con el directorio, drizzle-kit ve las vistas duplicadas.
+- `products.barcode` se eliminó en el spec 003 (migración `0003`): el flujo de venta del sistema antiguo no lo usa.

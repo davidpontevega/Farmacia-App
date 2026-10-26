@@ -81,30 +81,33 @@ async function seedSuperAdmin(adminRoleId: string) {
 
 async function seedProducts(userId: string) {
   const rows = SAMPLE_PRODUCTS.map(
-    ([commercialName, genericName, laboratory, category, salePrice], i) => ({
+    ([commercialName, genericName, laboratory, category, salePrice]) => ({
       commercialName,
       genericName,
       laboratory,
       category,
       salePrice,
       minStock: 10,
-      barcode: `770000000${String(i).padStart(4, "0")}`,
       createdBy: userId,
     }),
   );
 
   // Una transacción: un fallo a medias no deja productos sin lotes ni stock.
   await db.transaction(async (tx) => {
-    await tx.insert(products).values(rows).onConflictDoNothing();
+    // Sin clave única natural en products: la idempotencia es por nombre comercial.
+    const names = rows.map((r) => r.commercialName);
+    const existing = await tx
+      .select({ commercialName: products.commercialName })
+      .from(products)
+      .where(inArray(products.commercialName, names));
+    const have = new Set(existing.map((e) => e.commercialName));
+    const missing = rows.filter((r) => !have.has(r.commercialName));
+    if (missing.length > 0) await tx.insert(products).values(missing);
+
     const all = await tx
       .select()
       .from(products)
-      .where(
-        inArray(
-          products.barcode,
-          rows.map((r) => r.barcode),
-        ),
-      );
+      .where(inArray(products.commercialName, names));
 
     const lotRows = all.flatMap((p) => [
       { productId: p.id, lotNumber: "L-A", expiryDate: "2027-06-30", purchasePrice: Math.round(p.salePrice * 0.6), initialQuantity: 50, createdBy: userId },
