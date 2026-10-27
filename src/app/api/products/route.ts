@@ -8,13 +8,16 @@ import { PAGE_SIZE, type ProductsResponse } from "@/modules/products/types";
 import * as productRepo from "@/server/repositories/product.repository";
 import { createProduct } from "@/server/services/product.service";
 
+// La consulta por síntoma pide varios principios a la vez: una página mayor para no perder productos con stock.
+const NAMES_PAGE_SIZE = 200;
+
 export const GET = handle(async (req) => {
   await requirePermission("products.read");
   const query = listProductsQuerySchema.parse(
     Object.fromEntries(new URL(req.url).searchParams),
   );
   const today = todayLima();
-  const { items, total } = await productRepo.list({ ...query, pageSize: PAGE_SIZE, today });
+  const { items, total } = await productRepo.list({ ...query, pageSize: query.names?.length ? NAMES_PAGE_SIZE : PAGE_SIZE, today });
 
   const body: ProductsResponse = {
     total,
@@ -24,6 +27,8 @@ export const GET = handle(async (req) => {
       genericName: p.genericName,
       laboratory: p.laboratory,
       category: p.category,
+      shelf: p.shelf,
+      shelfRow: p.shelfRow,
       salePrice: p.salePrice,
       minStock: p.minStock,
       isActive: p.isActive,

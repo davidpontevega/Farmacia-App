@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { apiErrorMessage } from "@/lib/axios";
 import { formatDate } from "@/lib/dates";
+import { formatLocation } from "@/lib/location";
 import { formatSoles } from "@/lib/money";
 import { useDebounce } from "@/lib/use-debounce";
 import { Can } from "@/modules/auth/components/can";
@@ -75,6 +76,7 @@ export function ProductsTable() {
           <TableRow>
             <TableHead>Producto</TableHead>
             <TableHead>Categoría</TableHead>
+            <TableHead>Ubicación</TableHead>
             <TableHead className="text-right">Precio</TableHead>
             <TableHead className="text-right">Stock</TableHead>
             <TableHead className="text-right">Mín.</TableHead>
@@ -86,7 +88,7 @@ export function ProductsTable() {
         <TableBody>
           {data.items.length === 0 && (
             <TableRow>
-              <TableCell colSpan={8} className="text-center text-muted-foreground">
+              <TableCell colSpan={9} className="text-center text-muted-foreground">
                 Sin resultados
               </TableCell>
             </TableRow>
@@ -100,6 +102,7 @@ export function ProductsTable() {
                 )}
               </TableCell>
               <TableCell>{p.category ?? "—"}</TableCell>
+              <TableCell>{formatLocation(p.shelf, p.shelfRow) ?? "—"}</TableCell>
               <TableCell className="text-right">{formatSoles(p.salePrice)}</TableCell>
               <TableCell className="text-right font-medium">{p.stock}</TableCell>
               <TableCell className="text-right">{p.minStock}</TableCell>

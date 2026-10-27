@@ -49,6 +49,8 @@ export function ProductDialog({
       genericName: product?.genericName ?? "",
       laboratory: product?.laboratory ?? "",
       category: product?.category ?? "",
+      shelf: product?.shelf ?? "",
+      shelfRow: product?.shelfRow ?? "",
       salePrice: product ? centsToInput(product.salePrice) : "",
       minStock: String(product?.minStock ?? 0),
     },
@@ -60,6 +62,8 @@ export function ProductDialog({
       genericName: v.genericName,
       laboratory: v.laboratory,
       category: v.category,
+      shelf: v.shelf,
+      shelfRow: v.shelfRow,
       salePrice: toCents(v.salePrice),
       minStock: Number(v.minStock),
     };
@@ -92,6 +96,18 @@ export function ProductDialog({
               render={({ field }) => <CategoryCombobox id="p-category" value={field.value} onChange={field.onChange} />}
             />
             {errors.category && <p className="text-sm text-destructive">{errors.category.message}</p>}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="p-shelf">Estante</Label>
+              <Input id="p-shelf" placeholder="Ej: 3" aria-invalid={!!errors.shelf} {...register("shelf")} />
+              {errors.shelf && <p className="text-sm text-destructive">{errors.shelf.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="p-shelfRow">Fila</Label>
+              <Input id="p-shelfRow" placeholder="Ej: 2" aria-invalid={!!errors.shelfRow} {...register("shelfRow")} />
+              {errors.shelfRow && <p className="text-sm text-destructive">{errors.shelfRow.message}</p>}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">

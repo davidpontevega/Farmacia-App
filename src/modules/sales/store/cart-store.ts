@@ -6,6 +6,8 @@ export type CartItem = {
   productId: string;
   name: string;
   unitPrice: number;
+  /** Dónde está en el local («Estante 3 · Fila 2»), si se registró. */
+  location: string | null;
   quantity: number;
   /** Stock visto al agregar: tope de la cantidad en pantalla (el servidor revalida). */
   stock: number;

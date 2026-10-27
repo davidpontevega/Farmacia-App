@@ -57,6 +57,13 @@
       "when": 1793034958248,
       "tag": "0007_bored_carnage",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793124579942,
+      "tag": "0008_regular_vapor",
+      "breakpoints": true
     }
   ]
 }

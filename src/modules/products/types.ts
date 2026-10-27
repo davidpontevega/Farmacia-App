@@ -9,6 +9,8 @@ export type ProductListItem = {
   genericName: string | null;
   laboratory: string | null;
   category: string | null;
+  shelf: string | null;
+  shelfRow: string | null;
   salePrice: number;
   minStock: number;
   isActive: boolean;
@@ -21,4 +23,4 @@ export type ProductListItem = {
 
 export type ProductsResponse = { items: ProductListItem[]; total: number };
 
-export type ProductsQuery = { q?: string; page: number; includeInactive: boolean };
+export type ProductsQuery = { q?: string; names?: string[]; page: number; includeInactive: boolean };

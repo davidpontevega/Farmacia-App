@@ -3,7 +3,7 @@ import type { CreateProductInput, UpdateProductInput } from "../schemas";
 import type { ProductsQuery, ProductsResponse } from "../types";
 
 export const listProducts = async (params: ProductsQuery) =>
-  (await api.get<ProductsResponse>("/products", { params })).data;
+  (await api.get<ProductsResponse>("/products", { params: { ...params, names: params.names?.join(",") } })).data;
 
 export const createProduct = async (input: CreateProductInput) =>
   (await api.post<{ id: string }>("/products", input)).data;

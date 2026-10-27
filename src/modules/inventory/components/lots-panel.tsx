@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { apiErrorMessage } from "@/lib/axios";
 import { addDays, formatDate, todayLima } from "@/lib/dates";
+import { formatLocation } from "@/lib/location";
 import { formatSoles } from "@/lib/money";
 import { EXPIRING_DAYS } from "@/lib/stock";
 import { Can } from "@/modules/auth/components/can";
@@ -63,6 +64,7 @@ export function LotsPanel({ product }: { product: PickedProduct & Partial<Produc
           <h2 className="text-xl font-bold tracking-tight">{product.commercialName}</h2>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             {product.genericName && <span>{product.genericName}</span>}
+            {formatLocation(product.shelf, product.shelfRow) && <span className="font-medium text-foreground">{formatLocation(product.shelf, product.shelfRow)}</span>}
             {product.category && <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">{product.category}</span>}
           </p>
         </div>

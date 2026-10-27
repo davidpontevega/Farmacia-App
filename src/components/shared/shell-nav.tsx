@@ -9,6 +9,7 @@ import {
   Menu,
   Package,
   Receipt,
+  Stethoscope,
   ShoppingCart,
   Truck,
   Undo2,
@@ -28,6 +29,7 @@ export type NavLink = { href: string; label: string };
 const ICONS: Record<string, LucideIcon> = {
   "/pos": ShoppingCart,
   "/caja": Vault,
+  "/consulta": Stethoscope,
   "/devoluciones": Undo2,
   "/admin/products": Package,
   "/admin/inventory": Warehouse,

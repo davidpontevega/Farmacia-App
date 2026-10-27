@@ -18,6 +18,8 @@ export const products = pgTable(
     genericName: text("generic_name"),
     laboratory: text("laboratory"),
     category: text("category"),
+    shelf: text("shelf"),
+    shelfRow: text("shelf_row"),
     salePrice: integer("sale_price").notNull(),
     minStock: integer("min_stock").notNull().default(0),
     isActive: boolean("is_active").notNull().default(true),
@@ -25,5 +27,9 @@ export const products = pgTable(
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [check("products_price_nonneg", sql`${t.salePrice} >= 0`)],
+  (t) => [
+    check("products_price_nonneg", sql`${t.salePrice} >= 0`),
+    check("products_shelf_len", sql`char_length(${t.shelf}) <= 20`),
+    check("products_shelf_row_len", sql`char_length(${t.shelfRow}) <= 20`),
+  ],
 );

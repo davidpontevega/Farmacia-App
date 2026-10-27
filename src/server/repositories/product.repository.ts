@@ -1,4 +1,5 @@
 import { and, count, eq, getTableColumns, ilike, inArray, or, sql } from "drizzle-orm";
+import { normalize } from "@/lib/text";
 import { db } from "@/server/db";
 import type { Executor } from "@/server/db/types";
 import { lotStock, productStock, products, type Product } from "@/server/db/schema";
@@ -7,6 +8,8 @@ const escapeLike = (s: string) => s.replace(/[\\%_]/g, "\\$&");
 
 export async function list(params: {
   q?: string;
+  /** Cualquiera de estos nombres (sin tildes ni mayúsculas) en el nombre comercial o genérico. */
+  names?: string[];
   page: number;
   pageSize: number;
   includeInactive: boolean;
@@ -21,6 +24,15 @@ export async function list(params: {
           ilike(products.commercialName, pattern),
           ilike(products.genericName, pattern),
         )
+      : undefined,
+    params.names?.length
+      ? or(...params.names.flatMap((n) => {
+          const like = `%${escapeLike(normalize(n))}%`;
+          return [
+            sql`translate(lower(${products.commercialName}), 'áéíóúüñ', 'aeiouun') like ${like}`,
+            sql`translate(lower(coalesce(${products.genericName}, '')), 'áéíóúüñ', 'aeiouun') like ${like}`,
+          ];
+        }))
       : undefined,
   );
 
@@ -51,7 +63,8 @@ export async function list(params: {
       .leftJoin(productStock, eq(productStock.productId, products.id))
       .leftJoin(expiry, eq(expiry.productId, products.id))
       .where(where)
-      .orderBy(products.commercialName, products.id)
+      // En la consulta por síntoma, lo que tiene stock vendible va primero aunque haya más resultados que la página.
+      .orderBy(...(params.names?.length ? [sql`(coalesce(${expiry.sellable}, 0) > 0) desc`] : []), products.commercialName, products.id)
       .limit(params.pageSize)
       .offset((params.page - 1) * params.pageSize),
     db.select({ total: count() }).from(products).where(where),

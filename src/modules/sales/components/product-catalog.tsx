@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Pill, Search } from "lucide-react";
+import { MapPin, Pill, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
+import { formatLocation } from "@/lib/location";
 import { formatSoles } from "@/lib/money";
 import { useDebounce } from "@/lib/use-debounce";
 import { StockStatusBadge } from "@/modules/products/components/stock-status-badge";
@@ -78,7 +79,7 @@ export function ProductCatalog() {
               <button
                 type="button"
                 disabled={soldOut}
-                onClick={() => add({ productId: p.id, name: p.commercialName, unitPrice: p.salePrice, stock: p.sellableStock })}
+                onClick={() => add({ productId: p.id, name: p.commercialName, unitPrice: p.salePrice, location: formatLocation(p.shelf, p.shelfRow), stock: p.sellableStock })}
                 className="flex h-full min-h-11 w-full flex-col gap-1.5 rounded-xl border bg-card p-2.5 text-left transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="flex items-start justify-between gap-2">
@@ -91,6 +92,12 @@ export function ProductCatalog() {
                   <span className="line-clamp-2 block text-[13px] font-semibold leading-snug">{p.commercialName}</span>
                   <span className="block truncate text-xs text-muted-foreground">{[p.genericName, p.laboratory].filter(Boolean).join(" · ") || " "}</span>
                 </span>
+                {formatLocation(p.shelf, p.shelfRow) && (
+                  <span className="flex items-center gap-1 text-[11px] font-medium text-secondary-foreground">
+                    <MapPin className="size-3" aria-hidden="true" />
+                    {formatLocation(p.shelf, p.shelfRow)}
+                  </span>
+                )}
                 <span className="mt-auto flex items-baseline justify-between">
                   <span className="text-sm font-bold tabular-nums">{formatSoles(p.salePrice)}</span>
                   <span className="text-[11px] text-muted-foreground">Stock {p.sellableStock}</span>

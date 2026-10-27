@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
+import { formatLocation } from "@/lib/location";
 import { useDebounce } from "@/lib/use-debounce";
 import { StockStatusBadge } from "@/modules/products/components/stock-status-badge";
 import { useProducts } from "@/modules/products/hooks/use-products";
@@ -70,6 +71,7 @@ export function ProductList({
                 <span className="min-w-0 flex-1">
                   <span className="line-clamp-2 block text-sm font-semibold leading-snug">{p.commercialName}</span>
                   {p.genericName && <span className="block truncate text-xs text-muted-foreground">{p.genericName}</span>}
+                  {formatLocation(p.shelf, p.shelfRow) && <span className="block truncate text-xs font-medium text-secondary-foreground">{formatLocation(p.shelf, p.shelfRow)}</span>}
                 </span>
                 <span className="flex flex-col items-end gap-1">
                   <span className="text-sm font-bold tabular-nums">{p.stock}</span>

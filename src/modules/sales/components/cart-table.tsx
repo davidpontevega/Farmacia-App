@@ -1,6 +1,6 @@
 "use client";
 
-import { Minus, Plus, X } from "lucide-react";
+import { MapPin, Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatSoles } from "@/lib/money";
 import { useCartStore } from "../store/cart-store";
@@ -21,6 +21,12 @@ export function CartTable() {
         <li key={i.productId} className="flex items-center gap-2 border-b py-2 last:border-0">
           <div className="min-w-0 flex-1">
             <p className="truncate text-[13px] font-medium leading-tight">{i.name}</p>
+            {i.location && (
+              <p className="flex items-center gap-1 text-[11px] font-medium text-secondary-foreground">
+                <MapPin className="size-3" aria-hidden="true" />
+                {i.location}
+              </p>
+            )}
             <p className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
               <Button variant="outline" size="icon" className="size-6 rounded-md" aria-label={`Quitar una unidad de ${i.name}`} onClick={() => setQuantity(i.productId, i.quantity - 1)}>
                 <Minus className="size-3" />
