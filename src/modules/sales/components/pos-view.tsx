@@ -11,6 +11,7 @@ import { useActiveShift } from "@/modules/cash/hooks/use-cash";
 import { useCartStore } from "../store/cart-store";
 import { CartTable } from "./cart-table";
 import { PaymentDialog } from "./payment-dialog";
+import { PrescriptionDialog } from "./prescription-dialog";
 import { ProductCatalog } from "./product-catalog";
 
 export function PosView({ proofEnabled }: { proofEnabled: boolean }) {
@@ -18,6 +19,7 @@ export function PosView({ proofEnabled }: { proofEnabled: boolean }) {
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
   const [paying, setPaying] = useState(false);
+  const [prescribing, setPrescribing] = useState(false);
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
   if (error || !data) return <p className="text-destructive">{apiErrorMessage(error)}</p>;
@@ -37,7 +39,7 @@ export function PosView({ proofEnabled }: { proofEnabled: boolean }) {
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
-      <ProductCatalog />
+      <ProductCatalog onPrescription={() => setPrescribing(true)} />
 
       <aside aria-label="Venta actual" className="flex flex-col rounded-2xl border bg-card lg:sticky lg:top-4">
         <div className="flex items-center justify-between border-b px-4 py-1">
@@ -67,6 +69,7 @@ export function PosView({ proofEnabled }: { proofEnabled: boolean }) {
         </div>
       </aside>
 
+      {prescribing && <PrescriptionDialog onClose={() => setPrescribing(false)} />}
       {paying && <PaymentDialog total={total} proofEnabled={proofEnabled} onClose={() => setPaying(false)} />}
     </div>
   );

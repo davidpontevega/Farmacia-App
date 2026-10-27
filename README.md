@@ -26,6 +26,7 @@ Next.js 16 (App Router) · React 19 · TypeScript estricto · Tailwind 4 · shad
 | 012 | Ubicación del producto en el estante (estante y fila) | Hecho |
 | 013 | Consulta de medicamentos por síntoma | Hecho |
 | 014 | Constancia de pago Yape/Plin (foto de la transferencia) | Hecho |
+| 015 | Receta asistida, etapa 1 (lista de medicamentos a carrito) | Hecho |
 
 Los specs viven en [`docs/specs/`](docs/specs). La arquitectura y la estructura de carpetas están en [`docs/SETUP.md`](docs/SETUP.md); las reglas del proyecto, en [`CLAUDE.md`](CLAUDE.md).
 

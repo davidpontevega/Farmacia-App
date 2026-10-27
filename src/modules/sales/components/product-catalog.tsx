@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { MapPin, Pill, Search } from "lucide-react";
+import { ClipboardList, MapPin, Pill, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
@@ -15,7 +16,7 @@ import { useCartStore } from "../store/cart-store";
 const ALL = "Todos";
 
 /** Buscador y cuadrícula de productos: un clic agrega al carrito. */
-export function ProductCatalog() {
+export function ProductCatalog({ onPrescription }: { onPrescription: () => void }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState(ALL);
   const add = useCartStore((s) => s.add);
@@ -32,16 +33,22 @@ export function ProductCatalog() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-        <Input
-          autoFocus
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar por nombre comercial o genérico…"
-          aria-label="Buscar producto"
-          className="h-12 rounded-xl border-2 border-primary bg-card pl-12 text-base md:text-base"
-        />
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Input
+            autoFocus
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por nombre comercial o genérico…"
+            aria-label="Buscar producto"
+            className="h-12 rounded-xl border-2 border-primary bg-card pl-12 text-base md:text-base"
+          />
+        </div>
+        <Button type="button" variant="outline" size="lg" className="rounded-xl" onClick={onPrescription}>
+          <ClipboardList className="size-4" aria-hidden="true" />
+          Receta
+        </Button>
       </div>
 
       {categories.length > 1 && (

@@ -3,6 +3,7 @@
 import {
   keepPreviousData,
   useMutation,
+  useQueries,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -26,6 +27,15 @@ export const useProducts = (params: ProductsQuery, options?: { enabled?: boolean
     queryFn: () => listProducts(params),
     placeholderData: keepPreviousData,
     enabled: options?.enabled,
+  });
+
+/** Una consulta por término (null = sin consulta). Misma clave que `useProducts`, así comparten caché. */
+export const useProductsByTerms = (terms: (string | null)[]) =>
+  useQueries({
+    queries: terms.map((term) => {
+      const params: ProductsQuery = { names: term ? [term] : undefined, page: 1, includeInactive: false };
+      return { queryKey: ["products", params], queryFn: () => listProducts(params), enabled: !!term };
+    }),
   });
 
 function useProductsMutation<V>(fn: (v: V) => Promise<unknown>, success: string) {
