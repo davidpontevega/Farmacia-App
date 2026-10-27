@@ -100,3 +100,15 @@ const SEPARATOR = ";";
 export function toCsv(headers: string[], rows: (string | number | null)[][]) {
   return `﻿${[headers, ...rows].map((r) => r.map(csvCell).join(SEPARATOR)).join("\r\n")}\r\n`;
 }
+
+/** El período de igual duración que termina el día antes de `from`. */
+export function previousRange(from: string, to: string) {
+  const prevTo = addDays(from, -1);
+  return { from: addDays(prevTo, -daysBetween(from, to)), to: prevTo };
+}
+
+/** Variación porcentual con un decimal; null si no hay base con la que comparar. */
+export function deltaPct(current: number, previous: number): number | null {
+  if (previous <= 0) return null;
+  return Math.round(((current - previous) / previous) * 1000) / 10;
+}

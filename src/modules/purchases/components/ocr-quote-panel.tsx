@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DocumentInfo } from "@/lib/ocr/document";
 import { OcrCancelled, OcrEngineError, OcrLayoutError, readQuotePage, type PageBand } from "@/lib/ocr/engine";
@@ -13,15 +14,16 @@ const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 export type OcrRead = {
   /** Identifica esta lectura: las filas guardan `id:página:ítem` para resaltarse en su propio visor. */
   id: string;
+  fileName: string;
   pages: { url: string; bands: PageBand[] }[];
   rows: { page: number; row: OcrRow }[];
   info: DocumentInfo;
   warnings: string[];
 };
 
-type Props = { onRead: (read: OcrRead) => void };
+type Props = { onRead: (read: OcrRead) => void; again?: boolean };
 
-export function OcrQuotePanel({ onRead }: Props) {
+export function OcrQuotePanel({ onRead, again }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const abort = useRef<AbortController | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number; label: string } | null>(null);
@@ -55,7 +57,7 @@ export function OcrQuotePanel({ onRead }: Props) {
         return;
       }
 
-      const read: OcrRead = { id: Date.now().toString(36), pages: [], rows: [], info: emptyInfo(), warnings: [] };
+      const read: OcrRead = { id: Date.now().toString(36), fileName: file.name, pages: [], rows: [], info: emptyInfo(), warnings: [] };
       let layoutError: OcrLayoutError | null = null;
       for (let i = 0; i < count; i++) {
         const label = count > 1 ? `Página ${i + 1} de ${count}: ` : "";
@@ -118,15 +120,16 @@ export function OcrQuotePanel({ onRead }: Props) {
       />
       {progress ? (
         <div className="flex items-center gap-2 text-sm" role="status">
-          <progress aria-label="Avance de la lectura" className="h-2 w-40" value={progress.done} max={progress.total} />
+          <progress aria-label="Avance de la lectura" className="h-2 w-40 accent-primary" value={progress.done} max={progress.total} />
           <span>{progress.label}…</span>
           <Button type="button" size="sm" variant="outline" onClick={() => abort.current?.abort()}>
             Cancelar
           </Button>
         </div>
       ) : (
-        <Button type="button" variant="outline" onClick={() => input.current?.click()}>
-          Leer cotización (imagen o PDF)
+        <Button type="button" variant="outline" className="h-11 gap-2 px-4 font-semibold" onClick={() => input.current?.click()}>
+          <Upload aria-hidden="true" />
+          {again ? "Subir otra" : "Leer cotización (imagen o PDF)"}
         </Button>
       )}
       {error && (

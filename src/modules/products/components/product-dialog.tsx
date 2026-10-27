@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { centsToInput, toCents } from "@/lib/money";
+import { CategoryCombobox } from "./category-combobox";
 import { useCreateProduct, useUpdateProduct } from "../hooks/use-products";
 import { productFormSchema, type ProductFormValues } from "../schemas";
 import type { ProductListItem } from "../types";
@@ -21,7 +22,6 @@ const TEXT_FIELDS = [
   ["commercialName", "Nombre comercial"],
   ["genericName", "Nombre genérico"],
   ["laboratory", "Laboratorio"],
-  ["category", "Categoría"],
 ] as const;
 
 // Se monta al abrir (el padre lo renderiza condicionalmente), así el formulario
@@ -39,6 +39,7 @@ export function ProductDialog({
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<ProductFormValues>({
@@ -83,6 +84,15 @@ export function ProductDialog({
               )}
             </div>
           ))}
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="p-category">Categoría</Label>
+            <Controller
+              control={control}
+              name="category"
+              render={({ field }) => <CategoryCombobox id="p-category" value={field.value} onChange={field.onChange} />}
+            />
+            {errors.category && <p className="text-sm text-destructive">{errors.category.message}</p>}
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
               <Label htmlFor="p-salePrice">Precio de venta (S/)</Label>

@@ -22,6 +22,7 @@ Next.js 16 (App Router) · React 19 · TypeScript estricto · Tailwind 4 · shad
 | 008 | Registro ágil de compras (tabla, proveedor, unidades, pegar filas) | Hecho |
 | 009 | Leer la cotización desde imagen o PDF (OCR en el navegador) | Hecho |
 | 010 | Reportes (ventas, inventario valorizado, alertas) | Hecho |
+| 011 | Rediseño visual (tema médico, menú lateral, cajero y administrador, marca NicFarma) | Hecho |
 
 Los specs viven en [`docs/specs/`](docs/specs). La arquitectura y la estructura de carpetas están en [`docs/SETUP.md`](docs/SETUP.md); las reglas del proyecto, en [`CLAUDE.md`](CLAUDE.md).
 

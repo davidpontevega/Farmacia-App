@@ -25,7 +25,7 @@ const centsOrNull = (v: string) => (isValidSoles(v) ? toCents(v) : null);
 
 function Difference({ label, cents }: { label: string; cents: number | null }) {
   if (cents === null) return null;
-  const tone = cents === 0 ? "text-green-600" : "text-destructive";
+  const tone = cents === 0 ? "text-success" : "text-destructive";
   return (
     <p className={`text-sm font-medium ${tone}`}>
       {label}:{" "}
@@ -73,8 +73,8 @@ export function CloseShiftCard({
     );
 
   return (
-    <div className="rounded-lg border p-4">
-      <h2 className="mb-3 text-base font-medium">Cerrar turno</h2>
+    <div className="rounded-2xl border border-destructive/30 bg-card p-5">
+      <h2 className="mb-3 text-base font-semibold">Cerrar turno</h2>
       <form onSubmit={handleSubmit(setConfirming)} className="flex flex-col gap-3">
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1">

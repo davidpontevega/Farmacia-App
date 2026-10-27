@@ -79,13 +79,14 @@ export function MovementForm() {
 
   if (!current) return null;
   return (
-    <div className="rounded-lg border p-4">
-      <h2 className="mb-3 text-base font-medium">Movimientos de caja</h2>
+    <div className="rounded-2xl border bg-card p-5">
+      <h2 className="mb-3 text-base font-semibold">Movimientos de caja</h2>
       <div className="mb-3 flex gap-2">
         {tabs.map((t) => (
           <Button
             key={t.type}
             variant={t.type === current.type ? "default" : "outline"}
+            className="h-10 px-4"
             aria-pressed={t.type === current.type}
             size="sm"
             onClick={() => setActive(t.type)}

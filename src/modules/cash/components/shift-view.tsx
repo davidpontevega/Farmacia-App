@@ -18,7 +18,7 @@ export function ShiftView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Control de caja</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Control de caja</h1>
       {data.shift === null ? (
         <OpenShiftCard />
       ) : (

@@ -11,8 +11,11 @@ export function PurchasesView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Compras</h1>
-      <div className="flex gap-2">
+      <div>
+        <p className="text-sm text-muted-foreground">Compras / {tab === "new" ? "Nueva compra" : "Historial"}</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight">{tab === "new" ? "Registrar compra" : "Historial de compras"}</h1>
+      </div>
+      <div className="flex gap-1.5">
         <Button variant={tab === "new" ? "default" : "outline"} aria-pressed={tab === "new"} onClick={() => setTab("new")}>
           Registrar compra
         </Button>

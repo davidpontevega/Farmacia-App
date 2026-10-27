@@ -18,7 +18,7 @@ const expiryCsv = (rows: ExpiryRow[]) =>
 
 function ExpiryTable({ rows, title, csvName, busy }: { rows: ExpiryRow[]; title: string; csvName: string; busy: boolean }) {
   return (
-    <section className="flex flex-col gap-2">
+    <section className="flex flex-col gap-2 rounded-xl border bg-card p-5">
       <div className="flex items-center justify-between">
         <h2 className="font-medium">
           {title} ({rows.length})
@@ -90,7 +90,7 @@ export function AlertsReport() {
         <div aria-busy={isPlaceholderData} className={`flex flex-col gap-6 ${isPlaceholderData ? "opacity-50" : ""}`}>
           <ExpiryTable rows={data.expired} title="Vencidos con stock" csvName="vencidos" busy={isPlaceholderData} />
           <ExpiryTable rows={data.expiringSoon} title={`Por vencer en ${data.days} días`} csvName="por-vencer" busy={isPlaceholderData} />
-          <section className="flex flex-col gap-2">
+          <section className="flex flex-col gap-2 rounded-xl border bg-card p-5">
             <div className="flex items-center justify-between">
               <h2 className="font-medium">Stock bajo ({data.lowStock.length})</h2>
               <CsvButton

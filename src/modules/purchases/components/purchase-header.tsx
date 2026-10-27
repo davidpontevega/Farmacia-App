@@ -12,14 +12,26 @@ type Props = {
   onDocumentTotal: (v: string) => void;
   suppliers: SupplierOption[];
   today: string;
+  /** Hay un documento leído: se indica que algunos datos vienen de él. */
+  fromDocument?: boolean;
 };
 
-export function PurchaseHeader({ header, onHeader, documentTotal, onDocumentTotal, suppliers, today }: Props) {
+export function PurchaseHeader({ header, onHeader, documentTotal, onDocumentTotal, suppliers, today, fromDocument }: Props) {
   return (
-    <div className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2 lg:grid-cols-5">
+    <section className="rounded-2xl border bg-card p-5" aria-labelledby="doc-data">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <h2 id="doc-data" className="text-base font-semibold">
+          Datos del documento
+        </h2>
+        {fromDocument && (
+          <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-secondary-foreground">Rellenados desde la cotización</span>
+        )}
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
       <div className="flex flex-col gap-1">
-        <Label htmlFor="supplier">Proveedor</Label>
+        <Label className="text-xs text-muted-foreground" htmlFor="supplier">Proveedor</Label>
         <Input
+          className="h-11"
           id="supplier"
           list="supplier-options"
           autoComplete="off"
@@ -34,8 +46,9 @@ export function PurchaseHeader({ header, onHeader, documentTotal, onDocumentTota
         </datalist>
       </div>
       <div className="flex flex-col gap-1">
-        <Label htmlFor="document">Número de documento</Label>
+        <Label className="text-xs text-muted-foreground" htmlFor="document">Número de documento</Label>
         <Input
+          className="h-11"
           id="document"
           placeholder="Ej: F002-00000914"
           value={header.documentNumber}
@@ -43,8 +56,9 @@ export function PurchaseHeader({ header, onHeader, documentTotal, onDocumentTota
         />
       </div>
       <div className="flex flex-col gap-1">
-        <Label htmlFor="document-date">Fecha del documento</Label>
+        <Label className="text-xs text-muted-foreground" htmlFor="document-date">Fecha del documento</Label>
         <Input
+          className="h-11"
           id="document-date"
           type="date"
           max={today}
@@ -53,8 +67,9 @@ export function PurchaseHeader({ header, onHeader, documentTotal, onDocumentTota
         />
       </div>
       <div className="flex flex-col gap-1">
-        <Label htmlFor="other-charges">Otros gastos (S/), ej. envío</Label>
+        <Label className="text-xs text-muted-foreground" htmlFor="other-charges">Otros gastos (S/), ej. envío</Label>
         <Input
+          className="h-11"
           id="other-charges"
           inputMode="decimal"
           placeholder="0.00"
@@ -63,8 +78,9 @@ export function PurchaseHeader({ header, onHeader, documentTotal, onDocumentTota
         />
       </div>
       <div className="flex flex-col gap-1">
-        <Label htmlFor="document-total">Total del documento (S/)</Label>
+        <Label className="text-xs text-muted-foreground" htmlFor="document-total">Total del documento (S/)</Label>
         <Input
+          className="h-11"
           id="document-total"
           inputMode="decimal"
           placeholder="Para verificar la suma"
@@ -72,6 +88,7 @@ export function PurchaseHeader({ header, onHeader, documentTotal, onDocumentTota
           onChange={(e) => onDocumentTotal(e.target.value)}
         />
       </div>
-    </div>
+      </div>
+    </section>
   );
 }

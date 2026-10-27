@@ -11,7 +11,7 @@ import { useActiveShift } from "@/modules/cash/hooks/use-cash";
 import { useCartStore } from "../store/cart-store";
 import { CartTable } from "./cart-table";
 import { PaymentDialog } from "./payment-dialog";
-import { ProductSearch } from "./product-search";
+import { ProductCatalog } from "./product-catalog";
 
 export function PosView() {
   const { data, isLoading, error } = useActiveShift();
@@ -36,39 +36,39 @@ export function PosView() {
   const total = cartTotal(items);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_18rem]">
-      <div className="flex min-h-[60vh] flex-col gap-4">
-        <ProductSearch />
-        <CartTable />
-      </div>
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
+      <ProductCatalog />
 
-      <aside className="flex flex-col gap-4 rounded-lg border p-4">
-        <h2 className="text-sm font-medium text-muted-foreground">Resumen</h2>
-        <div className="flex flex-col gap-2 text-sm">
-          <div className="flex justify-between text-muted-foreground">
-            <span>Subtotal</span>
-            <span>{formatSoles(total)}</span>
-          </div>
-          <div className="flex justify-between text-muted-foreground">
-            <span>Descuento</span>
-            <span>{formatSoles(0)}</span>
-          </div>
-          <div className="mt-1 flex justify-between border-t pt-2 text-base font-bold">
-            <span>Total</span>
-            <span>{formatSoles(total)}</span>
-          </div>
+      <aside aria-label="Venta actual" className="flex flex-col rounded-2xl border bg-card lg:sticky lg:top-4">
+        <div className="flex items-center justify-between border-b px-5 py-3">
+          <h2 className="text-lg font-bold">Venta actual</h2>
+          <Button variant="ghost" className="h-11 text-destructive" disabled={items.length === 0} onClick={clear}>
+            Vaciar
+          </Button>
         </div>
-
-        <Button size="lg" disabled={items.length === 0} onClick={() => setPaying(true)}>
-          Cobrar {formatSoles(total)}
-        </Button>
-        <Button variant="outline" disabled={items.length === 0} onClick={clear}>
-          Limpiar carrito
-        </Button>
-
-        <p className="border-t pt-3 text-xs text-muted-foreground">
-          Turno abierto · apertura {formatSoles(data.shift.openingAmount)}
-        </p>
+        <div className="max-h-[48vh] overflow-y-auto px-5">
+          <CartTable />
+        </div>
+        <div className="flex flex-col gap-4 rounded-b-2xl bg-muted/50 p-5">
+          <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span className="tabular-nums">{formatSoles(total)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Descuento</span>
+              <span className="tabular-nums">{formatSoles(0)}</span>
+            </div>
+            <div className="mt-1 flex items-baseline justify-between border-t pt-3 text-foreground">
+              <span className="font-semibold">Total</span>
+              <span className="text-3xl font-bold tracking-tight tabular-nums">{formatSoles(total)}</span>
+            </div>
+          </div>
+          <Button variant="success" size="lg" className="h-14 text-lg font-bold" disabled={items.length === 0} onClick={() => setPaying(true)}>
+            Cobrar {formatSoles(total)}
+          </Button>
+          <p className="text-xs text-muted-foreground">Turno abierto · apertura {formatSoles(data.shift.openingAmount)}</p>
+        </div>
       </aside>
 
       {paying && <PaymentDialog total={total} onClose={() => setPaying(false)} />}

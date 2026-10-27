@@ -22,8 +22,8 @@ export function OpenShiftCard() {
   });
 
   return (
-    <div className="max-w-sm rounded-lg border p-4">
-      <h2 className="mb-3 text-base font-medium">Abrir turno</h2>
+    <div className="max-w-sm rounded-2xl border bg-card p-5">
+      <h2 className="mb-3 text-base font-semibold">Abrir turno</h2>
       <form
         onSubmit={handleSubmit((v) =>
           open.mutate({ openingAmount: toCents(v.openingAmount) }),

@@ -79,6 +79,7 @@ export function PaymentDialog({ total, onClose }: { total: number; onClose: () =
               key={m}
               variant={method === m ? "default" : "outline"}
               aria-pressed={method === m}
+              className="h-12 text-base"
               onClick={() => {
                 setMethod(m);
                 setCash("");
@@ -117,7 +118,7 @@ export function PaymentDialog({ total, onClose }: { total: number; onClose: () =
         )}
 
         {touched && payment.ok && payment.change > 0 && (
-          <p className="text-center text-lg font-semibold text-green-600">
+          <p className="text-center text-lg font-semibold text-success">
             Vuelto: {formatSoles(payment.change)}
           </p>
         )}
@@ -127,7 +128,7 @@ export function PaymentDialog({ total, onClose }: { total: number; onClose: () =
           </p>
         )}
 
-        <Button size="lg" disabled={!payment.ok || sale.isPending} onClick={confirm}>
+        <Button variant="success" size="lg" className="h-14 text-lg font-bold" disabled={!payment.ok || sale.isPending} onClick={confirm}>
           {sale.isPending ? "Procesando…" : "Confirmar venta"}
         </Button>
       </DialogContent>

@@ -34,13 +34,15 @@ export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove
       ? roundingDiff(d.documentLineCents, d.stockUnits, d.unitCostCents)
       : 0;
 
-  const doubt = (name: string) => (row.uncertain?.includes(name) ? " border-amber-500 ring-1 ring-amber-500" : "");
+  const doubt = (name: string) => (row.uncertain?.includes(name) ? " border-warning-ring ring-1 ring-warning-ring bg-warning-soft" : "");
   const field = (name: keyof PurchaseRow, label: string, width: string, extra?: Partial<React.ComponentProps<typeof Input>>) => (
     <Input
       aria-label={`${label}, fila ${index + 1}`}
       data-col={name}
       className={width + doubt(name)}
       title={doubt(name) ? "Leído con dudas: verifica" : undefined}
+      aria-invalid={doubt(name) ? true : undefined}
+      aria-description={doubt(name) ? "Leído con dudas: verifica" : undefined}
       value={String(row[name])}
       onChange={(e) => set({ [name]: e.target.value } as Partial<PurchaseRow>)}
       {...extra}
@@ -48,7 +50,7 @@ export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove
   );
 
   return (
-    <TableRow data-row={index} onFocusCapture={() => onFocusRow?.(row.ocrRef ?? null)} className={errors.length ? "bg-destructive/5" : pendingWarnings ? "bg-amber-500/10" : undefined}>
+    <TableRow data-row={index} onClick={() => onFocusRow?.(row.ocrRef ?? null)} onFocusCapture={() => onFocusRow?.(row.ocrRef ?? null)} className={errors.length ? "bg-destructive/5" : pendingWarnings ? "bg-warning-soft" : undefined}>
       <TableCell className={cell}>{field("supplierCode", "Código del proveedor", "w-24")}</TableCell>
       <TableCell className={cell}>
         <PurchaseProductCell row={row} rowLabel={`fila ${index + 1}`} catalog={catalog} onChange={set} />
@@ -101,7 +103,7 @@ export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove
           </p>
         ))}
         {warnings.map((m) => (
-          <p key={m} className={row.confirmed ? "text-muted-foreground" : "text-amber-600"}>
+          <p key={m} className={row.confirmed ? "text-muted-foreground" : "text-warning"}>
             {m}
           </p>
         ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { CheckCircle2, Info, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -87,7 +88,7 @@ export function PurchaseForm() {
   const [margin, setMargin] = useState("");
   const [rows, setRows] = useState<PurchaseRow[]>(() => [emptyRow()]);
   const [pasteOpen, setPasteOpen] = useState(false);
-  const [ocr, setOcr] = useState<{ id: string; pages: OcrRead["pages"]; notes: string[] } | null>(null);
+  const [ocr, setOcr] = useState<{ id: string; fileName: string; pages: OcrRead["pages"]; rowCount: number; shippingCents: number; notes: string[] } | null>(null);
   const [focusRef, setFocusRef] = useState<string | null>(null);
 
   // Borrador: se guarda solo; si hay uno de una visita anterior, se ofrece restaurarlo antes de guardar encima.
@@ -213,7 +214,10 @@ export function PurchaseForm() {
     setFocusRef(null);
     setOcr({
       id: read.id,
+      fileName: read.fileName,
       pages: read.pages,
+      rowCount: added.length,
+      shippingCents: patch.otherCharges ? shippingCents : 0,
       notes: [
         ...(applied.length ? [`Leído del documento (verifica): ${applied.join(", ")}.`] : []),
         ...notes,
@@ -284,6 +288,8 @@ export function PurchaseForm() {
           : null;
   const canSubmit = filled.length > 0 && errorCount === 0 && warningCount === 0 && !headerError && !create.isPending;
 
+  const doubtfulFields = effective.reduce((n, r) => n + (r.ocrRef && !r.confirmed ? (r.uncertain?.length ?? 0) : 0), 0);
+
   const reset = () => {
     setRows([emptyRow()]);
     setHeader(initialHeader());
@@ -305,10 +311,29 @@ export function PurchaseForm() {
   const submit = () =>
     create.mutate(buildPayload(header, filled), { onSuccess: reset });
 
+  const card = "rounded-2xl border bg-card p-5";
+  const linesLabel = `${filled.length} ${filled.length === 1 ? "fila" : "filas"}`;
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 px-5 font-semibold"
+          onClick={() => {
+            if ((filled.length === 0 && ocr === null && isEmptyDraft(draft)) || window.confirm("¿Descartar esta compra? Se perderán las filas y el documento leído.")) reset();
+          }}
+        >
+          Cancelar
+        </Button>
+        <Button type="button" className="h-11 px-5 font-semibold" disabled={!canSubmit} onClick={submit}>
+          {create.isPending ? "Registrando…" : `Registrar compra · ${formatSoles(totals.stored + (otherCents ?? 0))}`}
+        </Button>
+      </div>
+
       {stored && (
-        <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+        <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-warning-ring/40 bg-warning-soft p-3 text-sm text-warning">
           <span>
             Hay un borrador de una compra sin registrar ({stored.rows.filter((r) => !isBlankRow(r)).length} fila(s)).
           </span>
@@ -324,7 +349,7 @@ export function PurchaseForm() {
       )}
 
       {(catalogQuery.isError || linksQuery.isError) && (
-        <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+        <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
           {catalogQuery.isError
             ? "No se pudo cargar el catálogo: no se podrán sugerir productos. Recarga la página."
             : "No se pudieron cargar los productos aprendidos de este proveedor."}
@@ -338,112 +363,171 @@ export function PurchaseForm() {
         onDocumentTotal={setDocumentTotal}
         suppliers={suggestions}
         today={today}
+        fromDocument={ocr !== null}
       />
 
-      <div className="flex flex-wrap items-end gap-2">
-        <OcrQuotePanel onRead={addOcr} />
-        <Button type="button" variant="outline" onClick={() => setPasteOpen(true)}>
-          Pegar filas
-        </Button>
-        <Button type="button" variant="outline" onClick={addRow}>
-          + Agregar fila
-        </Button>
-        <Button type="button" variant="outline" onClick={createUnmatchedAsNew}>
-          Crear como nuevos los que no tienen producto
-        </Button>
-        <div className="ml-auto flex items-end gap-2">
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="margin" className="text-xs">
-              Margen % para productos nuevos
-            </Label>
-            <Input id="margin" className="w-24" inputMode="decimal" placeholder="Ej: 30" value={margin} onChange={(e) => setMargin(e.target.value)} />
+      <section className={`${card} flex flex-col gap-4`}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold">Leer cotización con foto o PDF</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Sube la cotización limpia que te envía el proveedor. Se lee en tu navegador y la imagen no sale de tu equipo.
+            </p>
           </div>
-          <Button type="button" variant="outline" disabled={!marginOk} onClick={applyMargin}>
-            Sugerir precios
-          </Button>
+          <OcrQuotePanel onRead={addOcr} again={ocr !== null} />
         </div>
-      </div>
 
-      {ocr && (
-        <>
-          {ocr.notes.length > 0 && (
-            <ul role="status" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-sm">
-              {ocr.notes.map((n, i) => (
-                <li key={i}>{n}</li>
-              ))}
-            </ul>
-          )}
-          <OcrViewer readId={ocr.id} pages={ocr.pages} focusRef={focusRef} onClose={closeOcr} />
-        </>
-      )}
-
-      <div className="overflow-x-auto rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {COLUMNS.map((c, i) => (
-                <TableHead key={i} className="whitespace-nowrap px-1">
-                  {c}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {effective.map((row, index) => (
-              <PurchaseRowView
-                key={row.key}
-                row={row}
-                index={index}
-                today={today}
-                catalog={catalog}
-                onChange={updateRow}
-                onRemove={removeRow}
-                onDuplicate={duplicateRow}
-                onEnterLast={enterLast}
-                onFocusRow={setFocusRef}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4">
-        <div className="flex flex-col gap-1 text-sm">
-          <p>
-            Líneas del documento: <strong>{formatSoles(totals.documentLines)}</strong>
-            {otherCents ? ` + otros gastos ${formatSoles(otherCents)}` : ""} ={" "}
-            <strong>{formatSoles(balance.expected)}</strong>
-          </p>
-          {balance.diff !== null && (
-            <p className={balance.diff === 0 ? "font-medium text-green-600" : "font-medium text-destructive"} role="status">
-              {balance.diff === 0
-                ? "Cuadra con el total del documento"
-                : `No cuadra con el total del documento: diferencia ${formatSolesSigned(balance.diff)}`}
-            </p>
-          )}
-          {totals.rounding !== 0 && (
-            <p className="text-xs text-muted-foreground">
-              Se registrará {formatSoles(totals.stored + (otherCents ?? 0))} (diferencia de redondeo por unidad {formatSolesSigned(totals.rounding)}).
-            </p>
-          )}
-          {headerError && <p className="text-destructive">{headerError}</p>}
-          {errorCount > 0 && <p className="text-destructive">{errorCount} fila(s) con errores: corrígelas para registrar.</p>}
-          {warningCount > 0 && (
-            <p className="text-amber-600">
-              {warningCount} fila(s) con avisos por confirmar.{" "}
-              <button type="button" className="underline" onClick={confirmWarnings}>
-                Confirmar los avisos que no son sugerencias
-              </button>
-              {suggestedPending > 0 && (
-                <span> Las {suggestedPending} sugerencia(s) por descripción se confirman una por una.</span>
+        {ocr && (
+          <>
+            <div role="status" className="flex flex-wrap items-center gap-3 rounded-xl bg-success-soft px-4 py-3 text-success">
+              <CheckCircle2 className="size-5 shrink-0" aria-hidden="true" />
+              <span className="text-sm font-semibold">
+                Lectura terminada · {ocr.fileName} · {ocr.pages.length} {ocr.pages.length === 1 ? "página" : "páginas"} · {ocr.rowCount} {ocr.rowCount === 1 ? "fila" : "filas"}
+              </span>
+              <span className="h-2 min-w-24 flex-1 rounded-full bg-success/20" aria-hidden="true">
+                <span className="block h-2 w-full rounded-full bg-chart-2" />
+              </span>
+              <span className="text-sm tabular-nums">100%</span>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {doubtfulFields > 0 && (
+                <div role="status" className="flex min-w-64 flex-1 gap-3 rounded-xl bg-warning-soft p-3 text-sm leading-relaxed text-warning">
+                  <TriangleAlert className="size-5 shrink-0" aria-hidden="true" />
+                  <p>
+                    <strong>Revisa {doubtfulFields} {doubtfulFields === 1 ? "campo" : "campos"} en ámbar.</strong> El sistema no estaba seguro de la lectura; al corregirlos se quita la marca.
+                  </p>
+                </div>
               )}
-            </p>
+              {ocr.shippingCents > 0 && (
+                <div role="status" className="flex min-w-64 flex-1 gap-3 rounded-xl bg-secondary p-3 text-sm leading-relaxed text-secondary-foreground">
+                  <Info className="size-5 shrink-0" aria-hidden="true" />
+                  <p>
+                    <strong>Flete {formatSoles(ocr.shippingCents)}</strong> pasó a «Otros gastos»: no es un producto y no entra al inventario.
+                  </p>
+                </div>
+              )}
+            </div>
+            {ocr.notes.length > 0 && (
+              <ul role="status" className="rounded-xl border border-warning-ring/40 bg-warning-soft p-3 text-sm text-warning">
+                {ocr.notes.map((n, i) => (
+                  <li key={i}>{n}</li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(300px,380px)_minmax(0,1fr)]">
+          {ocr && (
+            <div className="xl:sticky xl:top-4">
+              <OcrViewer readId={ocr.id} pages={ocr.pages} focusRef={focusRef} onClose={closeOcr} />
+            </div>
           )}
+          <div className={`flex min-w-0 flex-col gap-3 ${ocr ? "" : "xl:col-span-2"}`}>
+            <div className="flex flex-wrap items-end gap-2">
+              <Button type="button" variant="outline" className="h-10" onClick={() => setPasteOpen(true)}>
+                Pegar filas
+              </Button>
+              <Button type="button" variant="outline" className="h-10" onClick={addRow}>
+                + Agregar fila
+              </Button>
+              <Button type="button" variant="outline" className="h-10" onClick={createUnmatchedAsNew}>
+                Crear como nuevos los que no tienen producto
+              </Button>
+              <div className="ml-auto flex items-end gap-2">
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="margin" className="text-xs">
+                    Margen % para productos nuevos
+                  </Label>
+                  <Input id="margin" className="h-10 w-24" inputMode="decimal" placeholder="Ej: 30" value={margin} onChange={(e) => setMargin(e.target.value)} />
+                </div>
+                <Button type="button" variant="outline" className="h-10" disabled={!marginOk} onClick={applyMargin}>
+                  Sugerir precios
+                </Button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto rounded-xl border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {COLUMNS.map((c, i) => (
+                      <TableHead key={i} className="whitespace-nowrap px-1 text-xs font-medium text-muted-foreground">
+                        {c}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {effective.map((row, index) => (
+                    <PurchaseRowView
+                      key={row.key}
+                      row={row}
+                      index={index}
+                      today={today}
+                      catalog={catalog}
+                      onChange={updateRow}
+                      onRemove={removeRow}
+                      onDuplicate={duplicateRow}
+                      onEnterLast={enterLast}
+                      onFocusRow={setFocusRef}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="size-3.5 rounded border-2 border-warning-ring bg-warning-soft" aria-hidden="true" />
+              Campo en ámbar: lectura dudosa, revisar. Haz clic en una fila para verla resaltada en el documento.
+            </p>
+          </div>
         </div>
-        <Button size="lg" disabled={!canSubmit} onClick={submit}>
-          {create.isPending ? "Registrando…" : `Registrar compra · ${formatSoles(totals.stored + (otherCents ?? 0))}`}
-        </Button>
-      </div>
+      </section>
+
+      <section className={`${card} flex flex-col gap-2 text-sm sm:ml-auto sm:w-full sm:max-w-md`}>
+        <div className="flex justify-between text-muted-foreground">
+          <span>Productos ({linesLabel})</span>
+          <span className="tabular-nums">{formatSoles(totals.documentLines)}</span>
+        </div>
+        {otherCents ? (
+          <div className="flex justify-between text-muted-foreground">
+            <span>Otros gastos</span>
+            <span className="tabular-nums">{formatSoles(otherCents)}</span>
+          </div>
+        ) : null}
+        <div className="flex items-baseline justify-between border-t pt-3">
+          <span className="font-semibold">Total de la compra</span>
+          <span className="text-2xl font-bold tabular-nums">{formatSoles(balance.expected)}</span>
+        </div>
+        {balance.diff !== null && (
+          <p className={balance.diff === 0 ? "flex items-center gap-2 text-xs font-semibold text-success" : "text-xs font-semibold text-destructive"} role="status">
+            {balance.diff === 0 ? (
+              <>
+                <CheckCircle2 className="size-4" aria-hidden="true" />
+                Coincide con el total del documento
+              </>
+            ) : (
+              `No cuadra con el total del documento: diferencia ${formatSolesSigned(balance.diff)}`
+            )}
+          </p>
+        )}
+        {totals.rounding !== 0 && (
+          <p className="text-xs text-muted-foreground">
+            Se registrará {formatSoles(totals.stored + (otherCents ?? 0))} (diferencia de redondeo por unidad {formatSolesSigned(totals.rounding)}).
+          </p>
+        )}
+        {headerError && <p className="text-destructive">{headerError}</p>}
+        {errorCount > 0 && <p className="text-destructive">{errorCount} fila(s) con errores: corrígelas para registrar.</p>}
+        {warningCount > 0 && (
+          <p className="text-warning">
+            {warningCount} fila(s) con avisos por confirmar.{" "}
+            <button type="button" className="underline" onClick={confirmWarnings}>
+              Confirmar los avisos que no son sugerencias
+            </button>
+            {suggestedPending > 0 && <span> Las {suggestedPending} sugerencia(s) por descripción se confirman una por una.</span>}
+          </p>
+        )}
+      </section>
 
       {pasteOpen && <PasteRowsDialog onAdd={addPasted} onClose={() => setPasteOpen(false)} />}
     </div>

@@ -3,13 +3,13 @@ import type { StockStatus } from "@/lib/stock";
 
 const STATUS: Record<
   StockStatus,
-  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+  { label: string; variant: "success" | "warning" | "destructive" }
 > = {
   out: { label: "Agotado", variant: "destructive" },
   expired: { label: "Vencido", variant: "destructive" },
-  expiring: { label: "Por vencer", variant: "outline" },
-  low: { label: "Stock bajo", variant: "secondary" },
-  ok: { label: "OK", variant: "default" },
+  expiring: { label: "Vence pronto", variant: "warning" },
+  low: { label: "Stock bajo", variant: "warning" },
+  ok: { label: "Disponible", variant: "success" },
 };
 
 export function StockStatusBadge({ status }: { status: StockStatus }) {

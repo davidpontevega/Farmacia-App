@@ -103,7 +103,7 @@ export function InventoryReport() {
                 <TableCell className="text-right tabular-nums">{r.stock}</TableCell>
                 <TableCell className="text-right tabular-nums">{r.minStock}</TableCell>
                 <TableCell>
-                  <Badge variant={r.status === "OK" ? "secondary" : "destructive"}>{STATUS[r.status]}</Badge>
+                  <Badge variant={r.status === "OK" ? "success" : r.status === "LOW" ? "warning" : "destructive"}>{STATUS[r.status]}</Badge>
                 </TableCell>
                 <TableCell className="text-right tabular-nums">{formatSoles(r.costValueCents)}</TableCell>
                 <TableCell className="text-right tabular-nums">{formatSoles(r.saleValueCents)}</TableCell>

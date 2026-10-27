@@ -11,8 +11,8 @@ const BADGE_VARIANT = {
 
 export function MovementsList({ movements }: { movements: CashMovementRow[] }) {
   return (
-    <div className="rounded-lg border p-4">
-      <h2 className="mb-3 text-base font-medium">Movimientos del turno</h2>
+    <div className="rounded-2xl border bg-card p-5">
+      <h2 className="mb-3 text-base font-semibold">Movimientos del turno</h2>
       {movements.length === 0 ? (
         <p className="text-sm text-muted-foreground">Sin movimientos</p>
       ) : (

@@ -5,6 +5,6 @@ export function SaleStatusBadge({ status }: { status: SaleStatus }) {
   return status === "VOIDED" ? (
     <Badge variant="destructive">Anulada</Badge>
   ) : (
-    <Badge variant="secondary">Completada</Badge>
+    <Badge variant="success">Completada</Badge>
   );
 }

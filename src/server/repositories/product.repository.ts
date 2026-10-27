@@ -92,6 +92,16 @@ export async function listNames(ex: Executor = db) {
     .limit(10_000);
 }
 
+/** Categorías en uso (texto libre en `products.category`), sin repetir. */
+export async function listCategories(ex: Executor = db) {
+  const rows = await ex
+    .selectDistinct({ category: products.category })
+    .from(products)
+    .where(sql`${products.category} is not null and ${products.category} <> ''`)
+    .orderBy(products.category);
+  return rows.map((r) => r.category as string);
+}
+
 export async function findActiveByIds(ids: string[], ex: Executor = db) {
   return ex
     .select()

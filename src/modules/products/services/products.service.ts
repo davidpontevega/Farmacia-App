@@ -10,3 +10,5 @@ export const createProduct = async (input: CreateProductInput) =>
 
 export const updateProduct = async (id: string, input: UpdateProductInput) =>
   (await api.patch(`/products/${id}`, input)).data;
+
+export const listCategories = async () => (await api.get<string[]>("/products/categories")).data;

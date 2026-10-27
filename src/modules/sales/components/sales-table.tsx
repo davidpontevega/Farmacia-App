@@ -40,7 +40,7 @@ export function SalesTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">Ventas</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Ventas</h1>
 
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">

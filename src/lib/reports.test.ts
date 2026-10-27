@@ -6,7 +6,9 @@ import {
   expiryBucket,
   fillDays,
   isStockAlert,
+  deltaPct,
   marginPct,
+  previousRange,
   quickRange,
   rangeError,
   stockStatus,
@@ -113,4 +115,17 @@ test("toCsv deja los importes negativos como número y sigue neutralizando fórm
   assert.ok(!csv.includes("'-1.50"));
   assert.ok(csv.includes("'-SUM(A1)"));
   assert.ok(csv.includes("'-\r\n"));
+});
+
+test("previousRange: mismo largo, termina el día anterior", () => {
+  assert.deepEqual(previousRange("2026-10-26", "2026-10-26"), { from: "2026-10-25", to: "2026-10-25" });
+  assert.deepEqual(previousRange("2026-10-20", "2026-10-26"), { from: "2026-10-13", to: "2026-10-19" });
+  assert.deepEqual(previousRange("2026-03-01", "2026-03-03"), { from: "2026-02-26", to: "2026-02-28" });
+});
+
+test("deltaPct", () => {
+  assert.equal(deltaPct(1124, 1000), 12.4);
+  assert.equal(deltaPct(900, 1000), -10);
+  assert.equal(deltaPct(5, 0), null);
+  assert.equal(deltaPct(0, 1000), -100);
 });

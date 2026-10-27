@@ -4,7 +4,7 @@ import { useId, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PRODUCT_CATEGORIES } from "@/lib/constants";
+import { CategoryCombobox } from "@/modules/products/components/category-combobox";
 import { bestMatches, searchByTerm, type CatalogName } from "@/lib/match";
 import type { ProductSource, PurchaseRow } from "../rows";
 
@@ -42,25 +42,22 @@ export function PurchaseProductCell({ row, rowLabel, catalog, onChange }: Props)
       <div ref={root} className="flex min-w-56 flex-col gap-1">
         <Input
           data-col="newName"
-          className={doubtful ? "border-amber-500 ring-1 ring-amber-500" : undefined}
+          className={doubtful ? "border-warning-ring ring-1 ring-warning-ring bg-warning-soft" : undefined}
+          aria-invalid={doubtful ? true : undefined}
+          aria-description={doubtful ? "Leído con dudas: verifica" : undefined}
           aria-label={`Nombre del producto nuevo, ${rowLabel}`}
           value={row.description}
           onChange={(e) => onChange({ description: e.target.value })}
         />
         <div className="flex items-center gap-1">
-          <select
-            aria-label={`Categoría del producto nuevo, ${rowLabel}`}
-            className="h-7 flex-1 rounded-md border bg-background px-1 text-xs"
-            value={row.category}
-            onChange={(e) => onChange({ category: e.target.value })}
-          >
-            <option value="">Sin categoría</option>
-            {PRODUCT_CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+          <div className="flex-1">
+            <CategoryCombobox
+              aria-label={`Categoría del producto nuevo, ${rowLabel}`}
+              className="h-8 text-xs"
+              value={row.category}
+              onChange={(category) => onChange({ category })}
+            />
+          </div>
           <Button type="button" size="xs" variant="ghost" onClick={() => onChange({ isNew: false })}>
             Usar existente
           </Button>
@@ -114,7 +111,7 @@ export function PurchaseProductCell({ row, rowLabel, catalog, onChange }: Props)
   return (
     <div ref={root} className="relative flex min-w-56 flex-col gap-1">
       {row.description && (
-        <span className={doubtful ? "text-xs text-amber-600" : "text-xs text-muted-foreground"}>{row.description}</span>
+        <span className={doubtful ? "text-xs text-warning" : "text-xs text-muted-foreground"}>{row.description}</span>
       )}
       {/* Combobox: flechas para moverse, Enter para elegir, Escape para cerrar. */}
       <Input

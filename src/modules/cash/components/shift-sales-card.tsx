@@ -12,8 +12,8 @@ export function ShiftSalesCard() {
   const { data, isLoading, error } = useShiftSales();
 
   return (
-    <div className="rounded-lg border p-4">
-      <h2 className="mb-3 text-base font-medium">Ventas del turno</h2>
+    <div className="rounded-2xl border bg-card p-5">
+      <h2 className="mb-3 text-base font-semibold">Ventas del turno</h2>
       {isLoading && <Skeleton className="h-16 w-full" />}
       {error && <p className="text-destructive">{apiErrorMessage(error)}</p>}
       {data && data.length === 0 && <p className="text-sm text-muted-foreground">Aún no hay ventas</p>}
