@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { interpret, matchProducts, normalize, SYMPTOM_GROUPS, type ConsultProduct } from "./symptoms";
+import { interpret, matchProducts, requiresRx, normalize, SYMPTOM_GROUPS, type ConsultProduct } from "./symptoms";
 
 const product = (id: string, commercialName: string, genericName: string | null, sellableStock: number): ConsultProduct => ({
   id,
@@ -81,4 +81,12 @@ test("matchProducts: tildes en el catálogo y máximo 3 referencias", () => {
   const r = matchProducts(["acido folico", "zz1", "zz2", "zz3", "zz4"], [product("1", "Ácido Fólico 5 mg", null, 1)]);
   assert.deepEqual(r.products.map((p) => p.id), ["1"]);
   assert.equal(r.references.length, 3);
+});
+
+test("receta: antibióticos marcados, psicotrópicos fuera del diccionario", () => {
+  assert.ok(requiresRx("Amoxicilina"));
+  assert.ok(!requiresRx("paracetamol"));
+  assert.ok(!SYMPTOM_GROUPS.some((g) => g.ingredients.includes("alprazolam")));
+  const r = matchProducts(["amoxicilina", "paracetamol"], [product("1", "Amoxidal", "Amoxicilina 500", 5), product("2", "Panadol", "Paracetamol", 5)]);
+  assert.deepEqual(r.products.map((p) => [p.id, p.requiresRx]), [["1", true], ["2", false]]);
 });

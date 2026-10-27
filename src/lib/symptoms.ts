@@ -32,9 +32,21 @@ export const SYMPTOM_GROUPS: readonly SymptomGroup[] = [
   { keywords: ["anemia", "hierro", "hemoglobina baja", "sangre"], category: "Vitaminas", ingredients: ["sulfato ferroso", "hierro", "acido folico", "vitamina b12"], description: "Para la anemia y falta de hierro" },
   { keywords: ["dolor de muela", "muela", "diente", "dental", "encia"], category: "Analgésico", ingredients: ["ibuprofeno", "paracetamol", "naproxeno", "amoxicilina", "diclofenaco"], description: "Para el dolor dental" },
   { keywords: ["insomnio", "no puedo dormir", "dormir", "sueño"], category: "Otro", ingredients: ["melatonina", "valeriana", "difenhidramina"], description: "Para conciliar el sueño" },
-  { keywords: ["ansiedad", "nervios", "estres", "tension"], category: "Otro", ingredients: ["valeriana", "passiflora", "tilo", "alprazolam"], description: "Para la ansiedad y el estrés" },
+  { keywords: ["ansiedad", "nervios", "estres", "tension"], category: "Otro", ingredients: ["valeriana", "passiflora", "tilo"], description: "Para la ansiedad y el estrés" },
   { keywords: ["dolor abdominal", "abdomen", "vientre", "retortijon", "colicos", "menstruales"], category: "Antiespasmódico", ingredients: ["butilhioscina", "diciclomina", "paracetamol"], description: "Para dolor abdominal y cólicos" },
 ];
+
+/** Principios que solo se venden con receta (antibióticos, antihipertensivos, antidiabéticos, antieméticos). Los psicotrópicos (alprazolam…) no se sugieren. */
+const RX = new Set(
+  [
+    "amoxicilina", "azitromicina", "cefalexina", "ciprofloxacino", "ciprofloxacino oftalmico", "norfloxacino", "nitrofurantoina", "trimetoprim", "fosfomicina", "tobramicina", "cloranfenicol", "metronidazol", "tinidazol",
+    "enalapril", "losartan", "amlodipino", "captopril", "metoprolol",
+    "metformina", "glibenclamida", "glimepirida", "sitagliptina",
+    "ondansetron", "metoclopramida",
+  ].map(normalize),
+);
+
+export const requiresRx = (ingredient: string) => RX.has(normalize(ingredient));
 
 export const MEDICAL_NOTICE = "Se recomienda consultar con un médico para un diagnóstico adecuado";
 
@@ -79,7 +91,7 @@ export type ConsultProduct = {
 
 export type ConsultResult<P extends ConsultProduct> = {
   /** Productos activos cuyo nombre comercial o genérico contiene algún principio; con stock primero. */
-  products: P[];
+  products: (P & { requiresRx: boolean })[];
   /** Principios que no están en el catálogo, como referencia (máximo 3). */
   references: string[];
 };
@@ -87,11 +99,11 @@ export type ConsultResult<P extends ConsultProduct> = {
 /** Cruza los principios con el catálogo. Un producto sin nombre genérico solo coincide por su nombre comercial. */
 export function matchProducts<P extends ConsultProduct>(ingredients: string[], catalog: P[]): ConsultResult<P> {
   const covered = new Set<string>();
-  const products = catalog.filter((p) => {
+  const products = catalog.flatMap((p) => {
     const names = [normalize(p.commercialName), p.genericName ? normalize(p.genericName) : ""];
     const hit = ingredients.filter((i) => names.some((n) => n.includes(i)));
     hit.forEach((i) => covered.add(i));
-    return hit.length > 0;
+    return hit.length > 0 ? [{ ...p, requiresRx: hit.some(requiresRx) }] : [];
   });
   products.sort((a, b) => Number(b.sellableStock > 0) - Number(a.sellableStock > 0) || a.commercialName.localeCompare(b.commercialName, "es"));
   return { products, references: ingredients.filter((i) => !covered.has(i)).slice(0, 3) };

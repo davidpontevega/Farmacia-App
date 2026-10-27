@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { MapPin, Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -119,6 +120,7 @@ export function ConsultView() {
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <p className="text-sm font-semibold">{p.commercialName}</p>
+                          {p.requiresRx && <Badge variant="warning">Requiere receta</Badge>}
                           <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${available ? "bg-success-soft text-success" : "bg-muted text-muted-foreground"}`}>
                             {available ? `Stock: ${p.sellableStock}` : "Sin stock"}
                           </span>

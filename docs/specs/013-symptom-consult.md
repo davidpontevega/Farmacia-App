@@ -31,6 +31,7 @@ No incluye: editar el diccionario desde la pantalla (queda en el código), agreg
 - [ ] AC8 — Sugerencias rápidas (8 botones), «Enter» consulta, estados de carga y de error claros, y las últimas 5 consultas de la sesión (solo en memoria, no se guardan).
 - [ ] AC9 — Accesible: campo con etiqueta, resultados en lista, cantidades de stock como texto (no solo color), contraste del spec 011.
 - [ ] AC10 — `npm test`, `typecheck`, `lint` y `build` pasan. Tests de: coincidencia por clave, por palabra, sin coincidencias, tildes/mayúsculas, principios sin repetir, y el caso del producto sin genérico.
+- [ ] AC11 — (enmienda) Los productos cuyo principio activo exige receta (antibióticos, antihipertensivos, antidiabéticos, ondansetrón, metoclopramida) llevan la etiqueta «Requiere receta» en el resultado. Los psicotrópicos (alprazolam) se quitan del diccionario: no se sugieren.
 
 ## Datos
 Sin migraciones. El diccionario es un archivo de código.
