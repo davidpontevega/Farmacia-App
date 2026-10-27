@@ -13,6 +13,8 @@ export type SaleSummary = {
   yapeAmount: number;
   status: SaleStatus;
   userName: string;
+  /** Hay foto de la transferencia guardada (la ruta no sale del servidor). */
+  hasProof: boolean;
 };
 
 export type SaleItemRow = {

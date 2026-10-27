@@ -13,7 +13,7 @@ import { CartTable } from "./cart-table";
 import { PaymentDialog } from "./payment-dialog";
 import { ProductCatalog } from "./product-catalog";
 
-export function PosView() {
+export function PosView({ proofEnabled }: { proofEnabled: boolean }) {
   const { data, isLoading, error } = useActiveShift();
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
@@ -67,7 +67,7 @@ export function PosView() {
         </div>
       </aside>
 
-      {paying && <PaymentDialog total={total} onClose={() => setPaying(false)} />}
+      {paying && <PaymentDialog total={total} proofEnabled={proofEnabled} onClose={() => setPaying(false)} />}
     </div>
   );
 }

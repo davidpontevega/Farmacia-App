@@ -14,17 +14,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatSoles, isValidSoles, toCents } from "@/lib/money";
 import { resolvePayment, type PaymentMethod } from "@/lib/sales";
-import { useCreateSale } from "../hooks/use-sales";
+import { useCreateSale, useUploadProof } from "../hooks/use-sales";
 import { useCartStore } from "../store/cart-store";
 import { PAYMENT_LABEL } from "../types";
+import { PhotoButton } from "./photo-button";
 
 const METHODS: PaymentMethod[] = ["CASH", "YAPE", "MIXED"];
 const centsOrUndefined = (v: string) => (isValidSoles(v) ? toCents(v) : undefined);
 
-export function PaymentDialog({ total, onClose }: { total: number; onClose: () => void }) {
+export function PaymentDialog({ total, proofEnabled, onClose }: { total: number; proofEnabled: boolean; onClose: () => void }) {
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
   const sale = useCreateSale();
+  const upload = useUploadProof();
+  const [photo, setPhoto] = useState<Blob | null>(null);
 
   const [method, setMethod] = useState<PaymentMethod>("CASH");
   const [cash, setCash] = useState("");
@@ -50,6 +53,7 @@ export function PaymentDialog({ total, onClose }: { total: number; onClose: () =
             `Venta ${r.ticketNumber} registrada${r.change > 0 ? ` · Vuelto ${formatSoles(r.change)}` : ""}`,
             { duration: 8000 },
           );
+          if (photo && r.yapeAmount > 0) upload.mutate({ saleId: r.id, photo });
           clear();
           onClose();
         },
@@ -84,6 +88,7 @@ export function PaymentDialog({ total, onClose }: { total: number; onClose: () =
                 setMethod(m);
                 setCash("");
                 setYape("");
+                if (m === "CASH") setPhoto(null);
               }}
             >
               {PAYMENT_LABEL[m]}
@@ -114,6 +119,20 @@ export function PaymentDialog({ total, onClose }: { total: number; onClose: () =
               value={cash}
               onChange={(e) => setCash(e.target.value)}
             />
+          </div>
+        )}
+
+        {proofEnabled && method !== "CASH" && (
+          <div className="flex items-center justify-between gap-2 rounded-lg border p-3">
+            <p className="text-sm text-muted-foreground">{photo ? "Foto de la transferencia lista" : "Foto de la transferencia (opcional)"}</p>
+            <div className="flex gap-2">
+              {photo && (
+                <Button type="button" variant="ghost" size="sm" onClick={() => setPhoto(null)}>
+                  Quitar
+                </Button>
+              )}
+              <PhotoButton label={photo ? "Cambiar" : "Agregar foto"} onPick={setPhoto} />
+            </div>
           </div>
         )}
 

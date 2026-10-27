@@ -27,9 +27,10 @@ import { formatSoles } from "@/lib/money";
 import { Can } from "@/modules/auth/components/can";
 import { useSales, useVoidSale } from "../hooks/use-sales";
 import { PAYMENT_LABEL, SALES_LIST_LIMIT, type SaleSummary } from "../types";
+import { ProofCell } from "./proof-cell";
 import { SaleStatusBadge } from "./sale-status-badge";
 
-export function SalesTable() {
+export function SalesTable({ proofEnabled }: { proofEnabled: boolean }) {
   const [from, setFrom] = useState(todayLima());
   const [to, setTo] = useState(todayLima());
   const [toVoid, setToVoid] = useState<SaleSummary | null>(null);
@@ -69,13 +70,14 @@ export function SalesTable() {
                 <TableHead>Pago</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead>Estado</TableHead>
+                <TableHead>Constancia</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground">
                     Sin ventas en este rango
                   </TableCell>
                 </TableRow>
@@ -89,6 +91,9 @@ export function SalesTable() {
                   <TableCell className="text-right font-semibold">{formatSoles(s.total)}</TableCell>
                   <TableCell>
                     <SaleStatusBadge status={s.status} />
+                  </TableCell>
+                  <TableCell>
+                    <ProofCell sale={s} canUpload={false} proofEnabled={proofEnabled} />
                   </TableCell>
                   <TableCell className="text-right">
                     {s.status === "COMPLETED" && (

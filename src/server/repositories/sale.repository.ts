@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lt, sql } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, lt, sql } from "drizzle-orm";
 import { db } from "@/server/db";
 import type { Executor } from "@/server/db/types";
 import { lots, products, saleItems, sales, users } from "@/server/db/schema";
@@ -30,6 +30,7 @@ const summaryColumns = {
   userId: sales.userId,
   shiftId: sales.shiftId,
   userName: users.name,
+  hasProof: sql<boolean>`${sales.proofPath} is not null`,
 };
 
 export async function findWithItems(id: string, ex: Executor = db) {
@@ -100,4 +101,35 @@ export async function lockSale(id: string, ex: Executor) {
 
 export async function markVoided(id: string, ex: Executor) {
   await ex.update(sales).set({ status: "VOIDED" }).where(eq(sales.id, id));
+}
+
+/** Cuántos días de constancia vencidos se procesan por corrida del cron. */
+const PURGE_BATCH = 100;
+
+/** Fija la ruta solo si aún no hay constancia. Devuelve false si otra subida llegó antes. */
+export async function setProof(id: string, path: string, ex: Executor) {
+  const rows = await ex
+    .update(sales)
+    .set({ proofPath: path, proofUploadedAt: new Date() })
+    .where(and(eq(sales.id, id), isNull(sales.proofPath)))
+    .returning({ id: sales.id });
+  return rows.length > 0;
+}
+
+export async function expiredProofs(cutoff: Date, ex: Executor = db) {
+  return ex
+    .select({ id: sales.id, proofPath: sales.proofPath })
+    .from(sales)
+    .where(and(lt(sales.proofUploadedAt, cutoff), sql`${sales.proofPath} is not null`))
+    .orderBy(sales.proofUploadedAt)
+    .limit(PURGE_BATCH);
+}
+
+export async function clearProof(id: string, ex: Executor) {
+  await ex.update(sales).set({ proofPath: null }).where(eq(sales.id, id));
+}
+
+export async function proofPathOf(id: string, ex: Executor = db) {
+  const [row] = await ex.select({ path: sales.proofPath }).from(sales).where(eq(sales.id, id));
+  return row?.path ?? null;
 }

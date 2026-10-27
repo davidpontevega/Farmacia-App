@@ -4,11 +4,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
 import { formatDateTime } from "@/lib/dates";
 import { formatSoles } from "@/lib/money";
+import { ProofCell } from "@/modules/sales/components/proof-cell";
 import { SaleStatusBadge } from "@/modules/sales/components/sale-status-badge";
 import { useShiftSales } from "@/modules/sales/hooks/use-sales";
 import { PAYMENT_LABEL } from "@/modules/sales/types";
 
-export function ShiftSalesCard() {
+export function ShiftSalesCard({ proofEnabled }: { proofEnabled: boolean }) {
   const { data, isLoading, error } = useShiftSales();
 
   return (
@@ -32,6 +33,7 @@ export function ShiftSalesCard() {
                 </span>
               </div>
               <div className="flex items-center gap-3">
+                <ProofCell sale={s} canUpload={proofEnabled} proofEnabled={proofEnabled} />
                 <SaleStatusBadge status={s.status} />
                 <span className="w-20 text-right font-semibold">{formatSoles(s.total)}</span>
               </div>

@@ -10,7 +10,7 @@ import { OpenShiftCard } from "./open-shift-card";
 import { ShiftSalesCard } from "./shift-sales-card";
 import { ShiftSummaryCard } from "./shift-summary";
 
-export function ShiftView() {
+export function ShiftView({ proofEnabled }: { proofEnabled: boolean }) {
   const { data, isLoading, error } = useActiveShift();
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
@@ -37,7 +37,7 @@ export function ShiftView() {
           </div>
         </div>
       )}
-      {data.shift !== null && <ShiftSalesCard />}
+      {data.shift !== null && <ShiftSalesCard proofEnabled={proofEnabled} />}
     </div>
   );
 }

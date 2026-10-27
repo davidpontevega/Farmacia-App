@@ -6,6 +6,8 @@ const isPublic = createRouteMatcher([
   "/accept-invite(.*)",
   "/no-access",
   "/api/webhooks(.*)",
+  // El cron se autentica con CRON_SECRET en la propia ruta, no con Clerk.
+  "/api/cron(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

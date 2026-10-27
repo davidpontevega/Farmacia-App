@@ -1,4 +1,4 @@
-import { check, index, integer, pgSequence, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { check, index, integer, pgSequence, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { createdAt, id, paymentMethodEnum, saleStatusEnum } from "./_shared";
 import { cashShifts } from "./cash-shift";
@@ -25,6 +25,9 @@ export const sales = pgTable(
     cashAmount: integer("cash_amount").notNull().default(0),
     yapeAmount: integer("yape_amount").notNull().default(0),
     status: saleStatusEnum("status").notNull().default("COMPLETED"),
+    // Constancia de pago (spec 014): ruta en Blob privado; se borra a los 90 días.
+    proofPath: text("proof_path"),
+    proofUploadedAt: timestamp("proof_uploaded_at", { withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [
