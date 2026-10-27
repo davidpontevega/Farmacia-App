@@ -18,32 +18,32 @@ export function CartTable() {
   return (
     <ul className="flex flex-col">
       {items.map((i) => (
-        <li key={i.productId} className="flex items-center gap-3 border-b py-3 last:border-0">
+        <li key={i.productId} className="flex items-center gap-2 border-b py-2 last:border-0">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{i.name}</p>
-            <p className="text-xs text-muted-foreground">{formatSoles(i.unitPrice)} c/u</p>
-            <div className="mt-2 flex items-center gap-1">
-              <Button variant="outline" size="icon" className="size-9" aria-label={`Quitar una unidad de ${i.name}`} onClick={() => setQuantity(i.productId, i.quantity - 1)}>
-                <Minus />
+            <p className="truncate text-[13px] font-medium leading-tight">{i.name}</p>
+            <p className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground">
+              <Button variant="outline" size="icon" className="size-6 rounded-md" aria-label={`Quitar una unidad de ${i.name}`} onClick={() => setQuantity(i.productId, i.quantity - 1)}>
+                <Minus className="size-3" />
               </Button>
-              <span className="w-9 text-center text-sm font-semibold tabular-nums" aria-live="polite">
+              <span className="w-5 text-center font-semibold tabular-nums text-foreground" aria-live="polite">
                 {i.quantity}
               </span>
               <Button
                 variant="outline"
                 size="icon"
-                className="size-9"
+                className="size-6 rounded-md"
                 aria-label={`Agregar una unidad de ${i.name}`}
                 disabled={i.quantity >= i.stock}
                 onClick={() => setQuantity(i.productId, i.quantity + 1)}
               >
-                <Plus />
+                <Plus className="size-3" />
               </Button>
-            </div>
+              <span className="ml-1 tabular-nums">× {formatSoles(i.unitPrice)}</span>
+            </p>
           </div>
-          <span className="text-sm font-semibold tabular-nums">{formatSoles(i.unitPrice * i.quantity)}</span>
-          <Button variant="ghost" size="icon" className="size-9 text-muted-foreground" aria-label={`Quitar ${i.name} del carrito`} onClick={() => remove(i.productId)}>
-            <X />
+          <span className="text-[13px] font-semibold tabular-nums">{formatSoles(i.unitPrice * i.quantity)}</span>
+          <Button variant="ghost" size="icon" className="size-7 text-muted-foreground" aria-label={`Quitar ${i.name} del carrito`} onClick={() => remove(i.productId)}>
+            <X className="size-3.5" />
           </Button>
         </li>
       ))}

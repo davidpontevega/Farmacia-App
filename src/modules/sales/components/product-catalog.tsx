@@ -51,7 +51,7 @@ export function ProductCatalog() {
               type="button"
               aria-pressed={activeCategory === c}
               onClick={() => setCategory(c)}
-              className={`min-h-9 rounded-full border px-3 text-xs transition-colors ${
+              className={`min-h-8 rounded-full border px-3 text-xs transition-colors ${
                 activeCategory === c ? "border-primary bg-primary font-semibold text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"
               }`}
             >
@@ -70,7 +70,7 @@ export function ProductCatalog() {
       {data && items.length === 0 && (
         <p className="py-10 text-center text-sm text-muted-foreground">{isFetching ? "Buscando…" : "No se encontraron productos"}</p>
       )}
-      <ul className="grid grid-cols-[repeat(auto-fill,minmax(10.5rem,1fr))] gap-2.5">
+      <ul className="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2">
         {items.map((p) => {
           const soldOut = p.sellableStock <= 0;
           return (
@@ -79,21 +79,21 @@ export function ProductCatalog() {
                 type="button"
                 disabled={soldOut}
                 onClick={() => add({ productId: p.id, name: p.commercialName, unitPrice: p.salePrice, stock: p.sellableStock })}
-                className="flex h-full min-h-11 w-full flex-col gap-2 rounded-xl border bg-card p-3 text-left transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-full min-h-11 w-full flex-col gap-1.5 rounded-xl border bg-card p-2.5 text-left transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <span className="flex items-start justify-between gap-2">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary" aria-hidden="true">
-                    <Pill className="size-4" />
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-secondary text-primary" aria-hidden="true">
+                    <Pill className="size-3.5" />
                   </span>
                   <StockStatusBadge status={soldOut ? "out" : p.status} />
                 </span>
                 <span>
-                  <span className="line-clamp-2 block text-sm font-semibold leading-snug">{p.commercialName}</span>
+                  <span className="line-clamp-2 block text-[13px] font-semibold leading-snug">{p.commercialName}</span>
                   <span className="block truncate text-xs text-muted-foreground">{[p.genericName, p.laboratory].filter(Boolean).join(" · ") || " "}</span>
                 </span>
                 <span className="mt-auto flex items-baseline justify-between">
-                  <span className="text-base font-bold tabular-nums">{formatSoles(p.salePrice)}</span>
-                  <span className="text-xs text-muted-foreground">Stock {p.sellableStock}</span>
+                  <span className="text-sm font-bold tabular-nums">{formatSoles(p.salePrice)}</span>
+                  <span className="text-[11px] text-muted-foreground">Stock {p.sellableStock}</span>
                 </span>
               </button>
             </li>

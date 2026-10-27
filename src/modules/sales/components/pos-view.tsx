@@ -40,34 +40,30 @@ export function PosView() {
       <ProductCatalog />
 
       <aside aria-label="Venta actual" className="flex flex-col rounded-2xl border bg-card lg:sticky lg:top-4">
-        <div className="flex items-center justify-between border-b px-5 py-3">
-          <h2 className="text-lg font-bold">Venta actual</h2>
-          <Button variant="ghost" className="h-11 text-destructive" disabled={items.length === 0} onClick={clear}>
+        <div className="flex items-center justify-between border-b px-4 py-1">
+          <h2 className="text-base font-semibold">Venta actual</h2>
+          <Button variant="ghost" size="sm" className="text-destructive" disabled={items.length === 0} onClick={clear}>
             Vaciar
           </Button>
         </div>
-        <div className="max-h-[48vh] overflow-y-auto px-5">
+        <div className="max-h-[44vh] overflow-y-auto px-4">
           <CartTable />
         </div>
-        <div className="flex flex-col gap-4 rounded-b-2xl bg-muted/50 p-5">
-          <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
+        <div className="flex flex-col gap-3 rounded-b-2xl bg-muted/50 p-4">
+          <div className="flex flex-col gap-1 text-xs text-muted-foreground">
             <div className="flex justify-between">
               <span>Subtotal</span>
               <span className="tabular-nums">{formatSoles(total)}</span>
             </div>
-            <div className="flex justify-between">
-              <span>Descuento</span>
-              <span className="tabular-nums">{formatSoles(0)}</span>
-            </div>
-            <div className="mt-1 flex items-baseline justify-between border-t pt-3 text-foreground">
-              <span className="font-semibold">Total</span>
-              <span className="text-3xl font-bold tracking-tight tabular-nums">{formatSoles(total)}</span>
+            <div className="mt-1 flex items-baseline justify-between border-t pt-2 text-foreground">
+              <span className="text-sm font-semibold">Total</span>
+              <span className="text-2xl font-bold tracking-tight tabular-nums">{formatSoles(total)}</span>
             </div>
           </div>
-          <Button variant="success" size="lg" className="h-14 text-lg font-bold" disabled={items.length === 0} onClick={() => setPaying(true)}>
+          <Button variant="success" size="lg" className="h-12 text-base font-bold" disabled={items.length === 0} onClick={() => setPaying(true)}>
             Cobrar {formatSoles(total)}
           </Button>
-          <p className="text-xs text-muted-foreground">Turno abierto · apertura {formatSoles(data.shift.openingAmount)}</p>
+          <p className="text-[11px] text-muted-foreground">Turno abierto · apertura {formatSoles(data.shift.openingAmount)}</p>
         </div>
       </aside>
 
