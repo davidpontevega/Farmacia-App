@@ -126,6 +126,7 @@ export function ConsultView() {
                           </span>
                         </div>
                         {p.genericName && p.genericName !== p.commercialName && <p className="text-xs text-muted-foreground">Genérico: {p.genericName}</p>}
+                        {p.matchedAlias && <p className="text-xs text-muted-foreground">Coincide con «{p.matchedAlias}»</p>}
                         <p className="text-xs text-muted-foreground">{reading.description}</p>
                         {where && (
                           <p className="mt-1 flex items-center gap-1 text-xs font-medium text-secondary-foreground">

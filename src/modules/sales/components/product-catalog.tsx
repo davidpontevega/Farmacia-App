@@ -115,6 +115,7 @@ export function ProductCatalog({ onPrescription }: { onPrescription: () => void 
                 <span>
                   <span className="line-clamp-2 block text-[13px] font-semibold leading-snug">{p.commercialName}</span>
                   <span className="block truncate text-xs text-muted-foreground">{[p.genericName, p.laboratory].filter(Boolean).join(" · ") || " "}</span>
+                  {p.matchedAlias && <span className="block truncate text-[11px] text-secondary-foreground">Coincide con «{p.matchedAlias}»</span>}
                 </span>
                 {formatLocation(p.shelf, p.shelfRow) && (
                   <span className="flex items-center gap-1 text-[11px] font-medium text-secondary-foreground">

@@ -6,6 +6,9 @@ import { lotStock, productStock, products, type Product } from "@/server/db/sche
 
 const escapeLike = (s: string) => s.replace(/[\\%_]/g, "\\$&");
 
+/** Algún nombre alternativo contiene el patrón (sin tildes ni mayúsculas). */
+const aliasLike = (like: string) => sql`translate(lower(array_to_string(${products.aliases}, ' ')), 'áéíóúüñ', 'aeiouun') like ${like}`;
+
 export async function list(params: {
   q?: string;
   /** Cualquiera de estos nombres (sin tildes ni mayúsculas) en el nombre comercial o genérico. */
@@ -23,6 +26,7 @@ export async function list(params: {
       ? or(
           ilike(products.commercialName, pattern),
           ilike(products.genericName, pattern),
+          aliasLike(`%${escapeLike(normalize(params.q!))}%`),
         )
       : undefined,
     params.names?.length
@@ -31,6 +35,7 @@ export async function list(params: {
           return [
             sql`translate(lower(${products.commercialName}), 'áéíóúüñ', 'aeiouun') like ${like}`,
             sql`translate(lower(coalesce(${products.genericName}, '')), 'áéíóúüñ', 'aeiouun') like ${like}`,
+            aliasLike(like),
           ];
         }))
       : undefined,
@@ -98,6 +103,7 @@ export async function listNames(ex: Executor = db) {
       commercialName: products.commercialName,
       genericName: products.genericName,
       laboratory: products.laboratory,
+      aliases: products.aliases,
     })
     .from(products)
     .where(eq(products.isActive, true))

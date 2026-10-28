@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { handle } from "@/lib/api-handler";
 import { requirePermission } from "@/lib/auth";
+import { matchedAlias } from "@/lib/aliases";
 import { todayLima } from "@/lib/dates";
 import { getStockStatus } from "@/lib/stock";
 import { createProductSchema, listProductsQuerySchema } from "@/modules/products/schemas";
@@ -29,6 +30,8 @@ export const GET = handle(async (req) => {
       category: p.category,
       shelf: p.shelf,
       shelfRow: p.shelfRow,
+      aliases: p.aliases,
+      matchedAlias: matchedAlias(p, query.q ? [query.q] : (query.names ?? [])),
       salePrice: p.salePrice,
       minStock: p.minStock,
       isActive: p.isActive,

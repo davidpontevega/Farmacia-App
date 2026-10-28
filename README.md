@@ -31,6 +31,7 @@ Next.js 16 (App Router) · React 19 · TypeScript estricto · Tailwind 4 · shad
 | 017 | Faltantes (medicamentos pedidos que no hay, para compras) | Hecho |
 | 018 | «No lo tengo»: faltante desde la búsqueda de /pos | Hecho |
 | 019 | Cerrar faltantes al registrar la compra que los cubre | Hecho |
+| 020 | Nombres alternativos de producto (alias) | Hecho |
 
 Los specs viven en [`docs/specs/`](docs/specs). La arquitectura y la estructura de carpetas están en [`docs/SETUP.md`](docs/SETUP.md); las reglas del proyecto, en [`CLAUDE.md`](CLAUDE.md).
 

@@ -26,6 +26,8 @@ export type CatalogName = {
   commercialName: string;
   genericName: string | null;
   laboratory: string | null;
+  /** Otros nombres con que se pide el producto (spec 020). */
+  aliases?: readonly string[];
 };
 
 const label = (c: CatalogName) =>
@@ -42,11 +44,22 @@ export function score(description: string, candidate: string) {
   return 0.5 * jaccard + 0.5 * containment;
 }
 
-export type Match = { product: CatalogName; score: number };
+/** `via`: el alias que dio la mejor puntuación, si fue un alias y no la etiqueta habitual del producto. */
+export type Match = { product: CatalogName; score: number; via?: string };
+
+/** La mejor puntuación entre la etiqueta del producto y cada alias por separado: los alias extra no diluyen la coincidencia. */
+function bestScore(description: string, c: CatalogName): { score: number; via?: string } {
+  let top: { score: number; via?: string } = { score: score(description, label(c)) };
+  for (const alias of c.aliases ?? []) {
+    const s = score(description, alias);
+    if (s > top.score) top = { score: s, via: alias };
+  }
+  return top;
+}
 
 export function bestMatches(description: string, catalog: CatalogName[], limit = 3): Match[] {
   return catalog
-    .map((product) => ({ product, score: score(description, label(product)) }))
+    .map((product) => ({ product, ...bestScore(description, product) }))
     .filter((m) => m.score > 0)
     .sort((x, y) => y.score - x.score)
     .slice(0, limit);
@@ -69,7 +82,8 @@ function numbersCovered(description: string, candidate: string) {
 /** La mejor coincidencia solo si es clara: números compatibles y bien por delante de la segunda. */
 export function autoMatch(description: string, catalog: CatalogName[]): Match | null {
   const compatible = bestMatches(description, catalog, catalog.length).filter((m) =>
-    numbersCovered(description, label(m.product)),
+    // Un alias suele venir sin concentración («Ondansetrón»): los números se buscan en la etiqueta y en el alias juntos.
+    numbersCovered(description, `${label(m.product)} ${m.via ?? ""}`),
   );
   const [best, second] = compatible;
   if (!best || best.score < AUTO_MATCH_MIN) return null;
@@ -88,7 +102,7 @@ export function searchByTerm(term: string, catalog: CatalogName[], limit = 6): C
   const words = fold(term).split(/\s+/).filter(Boolean);
   if (words.length === 0) return [];
   return catalog
-    .map((c) => ({ c, text: fold(label(c)) }))
+    .map((c) => ({ c, text: fold([label(c), ...(c.aliases ?? [])].join(" ")) }))
     .filter(({ text }) => words.every((w) => text.includes(w)))
     .sort((a, b) => a.text.indexOf(words[0]) - b.text.indexOf(words[0]) || a.text.length - b.text.length)
     .slice(0, limit)

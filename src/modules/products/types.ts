@@ -11,6 +11,9 @@ export type ProductListItem = {
   category: string | null;
   shelf: string | null;
   shelfRow: string | null;
+  aliases: string[];
+  /** El alias que explica por qué aparece en esta búsqueda, si el nombre no bastó. */
+  matchedAlias: string | null;
   salePrice: number;
   minStock: number;
   isActive: boolean;

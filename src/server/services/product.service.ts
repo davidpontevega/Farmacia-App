@@ -1,6 +1,7 @@
 import { db } from "@/server/db";
 import { writeAudit } from "@/lib/audit";
-import { NotFoundError } from "@/lib/errors";
+import { aliasesError } from "@/lib/aliases";
+import { BusinessRuleError, NotFoundError } from "@/lib/errors";
 import type { CreateProductInput, UpdateProductInput } from "@/modules/products/schemas";
 import * as productRepo from "@/server/repositories/product.repository";
 
@@ -22,8 +23,15 @@ export async function updateProduct(actorId: string, id: string, input: UpdatePr
   const current = await productRepo.findById(id);
   if (!current) throw new NotFoundError("Producto no encontrado");
 
+  // Los alias deben ser distintos del nombre comercial: del nuevo si cambia, y de los alias que ya tiene si solo cambia el nombre.
+  if (input.aliases || input.commercialName) {
+    const error = aliasesError(input.aliases ?? current.aliases, input.commercialName ?? current.commercialName);
+    if (error) throw new BusinessRuleError(error);
+  }
+
+  const same = (a: unknown, b: unknown) => (Array.isArray(a) ? JSON.stringify(a) === JSON.stringify(b) : a === b);
   const fields = (Object.keys(input) as (keyof UpdateProductInput)[]).filter(
-    (k) => input[k] !== undefined && input[k] !== current[k],
+    (k) => input[k] !== undefined && !same(input[k], current[k]),
   );
   if (fields.length === 0) return;
 

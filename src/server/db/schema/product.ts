@@ -20,6 +20,8 @@ export const products = pgTable(
     category: text("category"),
     shelf: text("shelf"),
     shelfRow: text("shelf_row"),
+    /** Otros nombres con que se pide el producto (spec 020). */
+    aliases: text("aliases").array().notNull().default(sql`'{}'::text[]`),
     salePrice: integer("sale_price").notNull(),
     minStock: integer("min_stock").notNull().default(0),
     isActive: boolean("is_active").notNull().default(true),
@@ -31,5 +33,6 @@ export const products = pgTable(
     check("products_price_nonneg", sql`${t.salePrice} >= 0`),
     check("products_shelf_len", sql`char_length(${t.shelf}) <= 20`),
     check("products_shelf_row_len", sql`char_length(${t.shelfRow}) <= 20`),
+    check("products_aliases_max", sql`cardinality(${t.aliases}) <= 10`),
   ],
 );

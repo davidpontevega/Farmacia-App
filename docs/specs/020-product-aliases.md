@@ -1,7 +1,7 @@
 ---
 id: 020
 title: Nombres alternativos de producto (alias) para búsqueda y receta
-status: approved
+status: done
 module: products
 scope: all
 ---

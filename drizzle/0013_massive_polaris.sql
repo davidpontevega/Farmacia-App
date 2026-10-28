@@ -1,0 +1,2 @@
+ALTER TABLE "products" ADD COLUMN "aliases" text[] DEFAULT '{}'::text[] NOT NULL;--> statement-breakpoint
+ALTER TABLE "products" ADD CONSTRAINT "products_aliases_max" CHECK (cardinality("products"."aliases") <= 10);

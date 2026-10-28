@@ -218,6 +218,7 @@ export function PrescriptionDialog({ readerEnabled, onClose }: { readerEnabled: 
                                   {ranked.suggestedId === c.id && <Badge variant="success">Sugerido</Badge>}
                                 </span>
                                 {c.genericName && c.genericName !== c.commercialName && <span className="text-xs text-muted-foreground">Genérico: {c.genericName}</span>}
+                                {ranked.viaById[c.id] && <span className="text-xs text-muted-foreground">Coincide con «{ranked.viaById[c.id]}»</span>}
                                 {where && (
                                   <span className="mt-0.5 flex items-center gap-1 text-xs">
                                     <MapPin className="size-3" aria-hidden="true" />

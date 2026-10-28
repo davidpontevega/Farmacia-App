@@ -87,6 +87,7 @@ export type ConsultProduct = {
   sellableStock: number;
   shelf: string | null;
   shelfRow: string | null;
+  aliases?: readonly string[];
 };
 
 export type ConsultResult<P extends ConsultProduct> = {
@@ -100,7 +101,7 @@ export type ConsultResult<P extends ConsultProduct> = {
 export function matchProducts<P extends ConsultProduct>(ingredients: string[], catalog: P[]): ConsultResult<P> {
   const covered = new Set<string>();
   const products = catalog.flatMap((p) => {
-    const names = [normalize(p.commercialName), p.genericName ? normalize(p.genericName) : ""];
+    const names = [normalize(p.commercialName), p.genericName ? normalize(p.genericName) : "", ...(p.aliases ?? []).map(normalize)];
     const hit = ingredients.filter((i) => names.some((n) => n.includes(i)));
     hit.forEach((i) => covered.add(i));
     return hit.length > 0 ? [{ ...p, requiresRx: hit.some(requiresRx) }] : [];

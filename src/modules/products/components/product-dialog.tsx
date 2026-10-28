@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { centsToInput, toCents } from "@/lib/money";
+import { AliasesInput } from "./aliases-input";
 import { CategoryCombobox } from "./category-combobox";
 import { useCreateProduct, useUpdateProduct } from "../hooks/use-products";
 import { productFormSchema, type ProductFormValues } from "../schemas";
@@ -53,8 +54,11 @@ export function ProductDialog({
       shelfRow: product?.shelfRow ?? "",
       salePrice: product ? centsToInput(product.salePrice) : "",
       minStock: String(product?.minStock ?? 0),
+      aliases: product?.aliases ?? [],
     },
   });
+
+  const commercialName = useWatch({ control, name: "commercialName" });
 
   const onSubmit = (v: ProductFormValues) => {
     const input = {
@@ -66,6 +70,7 @@ export function ProductDialog({
       shelfRow: v.shelfRow,
       salePrice: toCents(v.salePrice),
       minStock: Number(v.minStock),
+      aliases: v.aliases,
     };
     const options = { onSuccess: onClose };
     if (product) update.mutate({ id: product.id, ...input }, options);
@@ -96,6 +101,16 @@ export function ProductDialog({
               render={({ field }) => <CategoryCombobox id="p-category" value={field.value} onChange={field.onChange} />}
             />
             {errors.category && <p className="text-sm text-destructive">{errors.category.message}</p>}
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="p-aliases">Nombres alternativos</Label>
+            <Controller
+              control={control}
+              name="aliases"
+              render={({ field }) => <AliasesInput id="p-aliases" value={field.value} commercialName={commercialName} onChange={field.onChange} />}
+            />
+            <p className="text-xs text-muted-foreground">Otros nombres con que lo piden (marca, principio activo). Ayudan a encontrarlo en la búsqueda y en las recetas.</p>
+            {errors.aliases && <p className="text-sm text-destructive">{errors.aliases.message}</p>}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">

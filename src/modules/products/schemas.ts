@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { aliasesError, cleanAlias, MAX_ALIASES } from "@/lib/aliases";
 import { isLocationPart, MAX_LOCATION_PART } from "@/lib/location";
 import { isValidSoles } from "@/lib/money";
 
@@ -20,8 +21,10 @@ const locationPart = z
   .nullable()
   .optional();
 
+const aliases = z.array(z.string().transform(cleanAlias)).max(MAX_ALIASES).optional();
+
 /** Entrada de la API: el precio va en centavos enteros. */
-export const createProductSchema = z.object({
+const productBase = z.object({
   commercialName: z.string().trim().min(1, "Nombre requerido").max(150),
   genericName: optionalText(150),
   laboratory: optionalText(100),
@@ -30,11 +33,21 @@ export const createProductSchema = z.object({
   shelfRow: locationPart,
   salePrice: z.number().int().min(0).max(100_000_000),
   minStock: z.number().int().min(0).max(1_000_000),
+  aliases,
 });
 
-export const updateProductSchema = createProductSchema
+// Al actualizar sin cambiar el nombre comercial, el servicio compara contra el actual.
+const checkAliases = (v: { aliases?: string[]; commercialName?: string }, ctx: z.RefinementCtx) => {
+  const error = v.aliases ? aliasesError(v.aliases, v.commercialName) : null;
+  if (error) ctx.addIssue({ code: "custom", message: error, path: ["aliases"] });
+};
+
+export const createProductSchema = productBase.superRefine(checkAliases);
+
+export const updateProductSchema = productBase
   .partial()
   .extend({ isActive: z.boolean().optional() })
+  .superRefine(checkAliases)
   .refine((v) => Object.values(v).some((x) => x !== undefined), {
     message: "Nada que actualizar",
   });
@@ -65,6 +78,7 @@ export const productFormSchema = z.object({
   shelfRow: z.string().trim().max(MAX_LOCATION_PART, "Máximo 20 caracteres").refine(isLocationPart, "Ubicación inválida"),
   salePrice: z.string().trim().refine(isValidSoles, "Precio inválido (ej. 2.50)"),
   minStock: z.string().trim().regex(/^\d+$/, "Número entero"),
+  aliases: z.array(z.string()),
 });
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
