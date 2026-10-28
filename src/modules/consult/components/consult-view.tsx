@@ -146,8 +146,8 @@ export function ConsultView() {
                 })}
               </ul>
               {result.references.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Principios activos de referencia que no están en el catálogo: <span className="font-medium">{result.references.join(", ")}</span>.
+                <p className="rounded-xl bg-warning-soft px-4 py-3 text-xs text-warning">
+                  Principios activos de referencia que no están en el catálogo: <span className="font-semibold">{result.references.join(", ")}</span>.
                 </p>
               )}
             </>
