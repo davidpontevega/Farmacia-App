@@ -14,7 +14,7 @@ import { PaymentDialog } from "./payment-dialog";
 import { PrescriptionDialog } from "./prescription-dialog";
 import { ProductCatalog } from "./product-catalog";
 
-export function PosView({ proofEnabled }: { proofEnabled: boolean }) {
+export function PosView({ proofEnabled, readerEnabled }: { proofEnabled: boolean; readerEnabled: boolean }) {
   const { data, isLoading, error } = useActiveShift();
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
@@ -69,7 +69,7 @@ export function PosView({ proofEnabled }: { proofEnabled: boolean }) {
         </div>
       </aside>
 
-      {prescribing && <PrescriptionDialog onClose={() => setPrescribing(false)} />}
+      {prescribing && <PrescriptionDialog readerEnabled={readerEnabled} onClose={() => setPrescribing(false)} />}
       {paying && <PaymentDialog total={total} proofEnabled={proofEnabled} onClose={() => setPaying(false)} />}
     </div>
   );

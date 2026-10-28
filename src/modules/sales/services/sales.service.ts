@@ -21,3 +21,10 @@ export const uploadProof = async (saleId: string, photo: Blob) => {
 
 /** La imagen se pide con la sesión del navegador; el servidor valida el permiso en cada lectura. */
 export const proofUrl = (saleId: string) => `/api/sales/${saleId}/proof`;
+
+/** Lee un recorte de receta y devuelve las líneas de medicamentos. El recorte no se guarda en el servidor. */
+export const readPrescriptionPhoto = async (crop: Blob, signal?: AbortSignal) => {
+  const form = new FormData();
+  form.append("file", crop, "receta.jpg");
+  return (await api.post<{ lines: string[] }>("/prescriptions/read", form, { signal })).data.lines;
+};

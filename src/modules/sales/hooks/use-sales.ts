@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/lib/axios";
 import type { SalesRange } from "../schemas";
-import { createSale, listSales, listShiftSales, uploadProof, voidSale } from "../services/sales.service";
+import { createSale, listSales, listShiftSales, readPrescriptionPhoto, uploadProof, voidSale } from "../services/sales.service";
 
 // Una venta cambia stock, totales del turno y listas de ventas.
 const AFFECTED = ["cash-shift", "shift-sales", "sales", "products", "lots", "kardex"];
@@ -78,3 +78,8 @@ export function useUploadProof() {
     onSettled: refresh,
   });
 }
+
+export const useReadPrescription = () =>
+  useMutation({
+    mutationFn: ({ crop, signal }: { crop: Blob; signal?: AbortSignal }) => readPrescriptionPhoto(crop, signal),
+  });

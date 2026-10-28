@@ -1,7 +1,7 @@
 "use client";
 
 import { MapPin } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,16 +13,22 @@ import { apiErrorMessage } from "@/lib/axios";
 import { formatLocation } from "@/lib/location";
 import { formatSoles } from "@/lib/money";
 import { mainTerm, MAX_PRESCRIPTION_LINES, MAX_QUANTITY, parsePrescription, rankLine } from "@/lib/prescription";
+import { isUncertainLine } from "@/lib/prescription-read";
 import { useProductsByTerms } from "@/modules/products/hooks/use-products";
 import { useCartStore } from "../store/cart-store";
+import { PrescriptionPhoto } from "./prescription-photo";
 
 type Override = { choice?: string | "none"; quantity?: number; dropped?: boolean };
 
 const EXAMPLE = "Amoxicilina 500 mg x 21\n2 paracetamol 500\nLoratadina 10 mg #10";
 
 /** Receta a carrito: una línea por medicamento, el cajero confirma el producto de cada una. */
-export function PrescriptionDialog({ onClose }: { onClose: () => void }) {
+export function PrescriptionDialog({ readerEnabled, onClose }: { readerEnabled: boolean; onClose: () => void }) {
   const [text, setText] = useState("");
+  const [photoMode, setPhotoMode] = useState(false);
+  const [thumb, setThumb] = useState<string | null>(null);
+  // La miniatura vive solo mientras el diálogo está abierto (spec 016: nada se conserva).
+  useEffect(() => () => { if (thumb) URL.revokeObjectURL(thumb); }, [thumb]);
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [overrides, setOverrides] = useState<Record<number, Override>>({});
   const setOverride = (i: number, patch: Override) => setOverrides((o) => ({ ...o, [i]: { ...o[i], ...patch } }));
@@ -74,7 +80,16 @@ export function PrescriptionDialog({ onClose }: { onClose: () => void }) {
           </DialogDescription>
         </DialogHeader>
 
-        {parsed === null ? (
+        {parsed === null && photoMode ? (
+          <PrescriptionPhoto
+            onRead={(lines, url) => {
+              setText(lines.join("\n"));
+              setThumb(url);
+              setPhotoMode(false);
+            }}
+            onCancel={() => setPhotoMode(false)}
+          />
+        ) : parsed === null ? (
           <form
             className="flex flex-col gap-3"
             onSubmit={(e) => {
@@ -83,7 +98,24 @@ export function PrescriptionDialog({ onClose }: { onClose: () => void }) {
               setSubmitted(text);
             }}
           >
-            <Label htmlFor="rx-text">Medicamentos de la receta</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="rx-text">Medicamentos de la receta</Label>
+              {readerEnabled && (
+                <Button type="button" variant="outline" size="sm" onClick={() => setPhotoMode(true)}>
+                  Foto de la receta
+                </Button>
+              )}
+            </div>
+            {thumb && (
+              <div className="flex gap-3 rounded-lg border bg-muted/40 p-2">
+                {/* eslint-disable-next-line @next/next/no-img-element -- recorte local (blob:) para comparar con la lectura */}
+                <img src={thumb} alt="Recorte leído, para comparar con las líneas" className="max-h-28 w-auto rounded border" />
+                <p role="status" className="text-xs text-muted-foreground">
+                  Revisa cada línea: puede haber errores de lectura, sobre todo con letra manuscrita.
+                  {!text.trim() && " No se encontraron medicamentos legibles en el recorte."}
+                </p>
+              </div>
+            )}
             <textarea
               id="rx-text"
               autoFocus
@@ -94,6 +126,13 @@ export function PrescriptionDialog({ onClose }: { onClose: () => void }) {
               autoComplete="off"
               className="h-56 w-full rounded-lg border bg-card p-3 text-sm"
             />
+            {thumb && text.split("\n").some(isUncertainLine) && (
+              <ul aria-label="Líneas dudosas" className="flex flex-col gap-1 rounded-lg bg-warning-soft px-3 py-2 text-xs text-warning">
+                {text.split("\n").filter(isUncertainLine).map((l, i) => (
+                  <li key={i}>Dudosa: {l}</li>
+                ))}
+              </ul>
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancelar
