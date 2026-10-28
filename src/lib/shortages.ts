@@ -1,4 +1,5 @@
 // Faltantes (spec 017): reglas puras. Sin red ni base de datos.
+import { toCsv as sheetCsv } from "./reports";
 import { normalize } from "./text";
 
 export const SHORTAGE_NAME_MAX = 120;
@@ -30,17 +31,9 @@ export type ShortageGroup = {
 /** Texto para pegar en un mensaje: una línea por medicamento. */
 export const toClipboardText = (rows: readonly ShortageGroup[]) => rows.map((r) => `${r.name} — ${r.totalQuantity}`).join("\n");
 
-// Excel interpreta como fórmula lo que empieza con = + - @ (o tabulación / retorno): el nombre es texto libre o de una IA.
-const FORMULA_START = /^[=+\-@\t\r]/;
-
-export function csvCell(value: string | number): string {
-  let text = String(value);
-  if (FORMULA_START.test(text)) text = `'${text}`;
-  return /[",\n\r;]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
-}
-
-export function toCsv(rows: readonly ShortageGroup[]): string {
-  const header = ["Medicamento", "Veces pedido", "Cantidad total", "Último pedido"];
-  const lines = rows.map((r) => [r.name, r.timesRequested, r.totalQuantity, r.lastAt.slice(0, 10)].map(csvCell).join(","));
-  return [header.map(csvCell).join(","), ...lines].join("\r\n");
-}
+/** CSV para Excel: mismo formato que los reportes (UTF-8 con BOM, columnas separadas por «;», fórmulas neutralizadas). */
+export const toCsv = (rows: readonly ShortageGroup[]) =>
+  sheetCsv(
+    ["Medicamento", "Veces pedido", "Cantidad total", "Último pedido"],
+    rows.map((r) => [r.name, r.timesRequested, r.totalQuantity, r.lastAt.slice(0, 10)]),
+  );

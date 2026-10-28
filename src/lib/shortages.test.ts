@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { canAddSource, csvCell, dedupeSince, shortageKey, toClipboardText, toCsv, type ShortageGroup } from "./shortages";
+import { canAddSource, dedupeSince, shortageKey, toClipboardText, toCsv, type ShortageGroup } from "./shortages";
 
 const row = (over: Partial<ShortageGroup> = {}): ShortageGroup => ({
   nameKey: "amoxicilina 500 mg",
@@ -32,26 +32,23 @@ test("toClipboardText: una línea por medicamento", () => {
   assert.equal(toClipboardText([]), "");
 });
 
-test("csvCell: comillas, comas y saltos se escapan", () => {
-  assert.equal(csvCell("simple"), "simple");
-  assert.equal(csvCell('con "comillas"'), '"con ""comillas"""');
-  assert.equal(csvCell("a, b"), '"a, b"');
-  assert.equal(csvCell("a;b"), '"a;b"');
-  assert.equal(csvCell("a\nb"), '"a\nb"');
-  assert.equal(csvCell(12), "12");
+test("toCsv: una columna por dato, separadas por «;» y con BOM (Excel en español)", () => {
+  const csv = toCsv([row(), row({ name: "Loratadina 10 mg", timesRequested: 1, totalQuantity: 5, lastAt: "2026-10-28T09:00:00.000Z" })]);
+  const lines = csv.replace("\uFEFF", "").trimEnd().split("\r\n");
+  assert.ok(csv.startsWith("\uFEFF"));
+  assert.equal(lines[0], "Medicamento;Veces pedido;Cantidad total;Último pedido");
+  assert.equal(lines[1], "Amoxicilina 500 mg;3;63;2026-10-27");
+  assert.equal(lines[2], "Loratadina 10 mg;1;5;2026-10-28");
+  assert.equal(lines.every((l) => l.split(";").length === 4), true);
 });
 
-test("csvCell: neutraliza fórmulas de Excel", () => {
-  assert.equal(csvCell("=HYPERLINK(1)"), "'=HYPERLINK(1)");
-  assert.equal(csvCell("+cmd"), "'+cmd");
-  assert.equal(csvCell("-2+3"), "'-2+3");
-  assert.equal(csvCell("@SUM(A1)"), "'@SUM(A1)");
-  assert.ok(csvCell("\t=x").startsWith("'"));
+test("toCsv: comillas, punto y coma y comas dentro del nombre no rompen las columnas", () => {
+  const csv = toCsv([row({ name: 'Jarabe "X"; 5 mg, frasco' })]);
+  assert.ok(csv.includes('"Jarabe ""X""; 5 mg, frasco";3;63;2026-10-27'));
 });
 
-test("toCsv: cabecera, filas y fecha corta", () => {
-  const csv = toCsv([row({ name: '=EVIL("x")' })]);
-  const [head, line] = csv.split("\r\n");
-  assert.equal(head, "Medicamento,Veces pedido,Cantidad total,Último pedido");
-  assert.equal(line, `"'=EVIL(""x"")",3,63,2026-10-27`);
+test("toCsv: neutraliza fórmulas del nombre", () => {
+  const csv = toCsv([row({ name: '=EVIL("x")' }), row({ name: "@SUM(A1)" })]);
+  assert.ok(csv.includes(`"'=EVIL(""x"")";3;63;2026-10-27`));
+  assert.ok(csv.includes("'@SUM(A1);3;63;2026-10-27"));
 });

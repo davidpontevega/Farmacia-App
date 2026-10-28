@@ -195,7 +195,7 @@ export function PrescriptionDialog({ readerEnabled, onClose }: { readerEnabled: 
                       </p>
                     )}
                     {!dropped && !error && ranked.candidates.length === 0 && (
-                      <p className="mt-2 text-xs text-muted-foreground">No encontrado en el catálogo</p>
+                      <p className="mt-2 text-xs font-medium text-destructive">No encontrado en el catálogo</p>
                     )}
                     {!dropped && !chosen && !none && ranked.candidates.length > 0 && (
                       <Badge variant="warning" className="mt-2">

@@ -19,8 +19,7 @@ import { STATUS_LABEL, type ShortageGroup, type ShortageStatus } from "../types"
 const STATUSES: ShortageStatus[] = ["OPEN", "ORDERED", "DISMISSED"];
 
 function downloadCsv(rows: ShortageGroup[], status: ShortageStatus) {
-  // BOM para que Excel respete las tildes.
-  const blob = new Blob(["﻿", toCsv(rows)], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" }); // ya trae BOM y «;» como los reportes
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
