@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,11 +17,14 @@ import { apiErrorMessage } from "@/lib/axios";
 import { formatDate, todayLima } from "@/lib/dates";
 import { formatSoles } from "@/lib/money";
 import { usePurchases } from "../hooks/use-purchases";
-import { PURCHASES_LIST_LIMIT } from "../types";
+import { PURCHASES_LIST_LIMIT, type PurchaseSummary } from "../types";
+import { PurchaseDetailDialog } from "./purchase-detail-dialog";
 
 export function PurchasesTable() {
   const [from, setFrom] = useState(todayLima());
   const [to, setTo] = useState(todayLima());
+  const [selected, setSelected] = useState<PurchaseSummary | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
   const range = from && to && from <= to ? { from, to } : null;
   const { data, isLoading, error } = usePurchases(range);
 
@@ -53,12 +57,13 @@ export function PurchasesTable() {
                 <TableHead>Registrada por</TableHead>
                 <TableHead className="text-right">Ítems</TableHead>
                 <TableHead className="text-right">Total</TableHead>
+                <TableHead><span className="sr-only">Detalle</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground">
                     Sin compras en este rango
                   </TableCell>
                 </TableRow>
@@ -71,6 +76,21 @@ export function PurchasesTable() {
                   <TableCell>{p.userName}</TableCell>
                   <TableCell className="text-right">{p.itemCount}</TableCell>
                   <TableCell className="text-right font-semibold">{formatSoles(p.total)}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="border-primary text-primary hover:bg-secondary hover:text-primary"
+                      aria-label={`Ver detalle de la compra ${p.documentNumber ?? formatDate(p.documentDate)}`}
+                      onClick={() => {
+                        setSelected(p);
+                        setDetailOpen(true);
+                      }}
+                    >
+                      Ver detalle
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -82,6 +102,7 @@ export function PurchasesTable() {
           )}
         </>
       )}
+      <PurchaseDetailDialog purchase={selected} open={detailOpen} onClose={() => setDetailOpen(false)} />
     </div>
   );
 }

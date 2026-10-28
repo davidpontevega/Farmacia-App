@@ -11,6 +11,24 @@ export type PurchaseSummary = {
   total: number;
 };
 
+export type PurchaseDetailItem = {
+  id: string;
+  productName: string;
+  genericName: string | null;
+  lotNumber: string;
+  expiryDate: string;
+  quantity: number;
+  purchasePrice: number;
+  salePrice: number | null;
+};
+
+export type PurchaseDetail = Omit<PurchaseSummary, "itemCount"> & {
+  otherCharges: number;
+  items: PurchaseDetailItem[];
+  /** Faltantes que esta compra cubrió (spec 019). */
+  shortages: { name: string; quantity: number }[];
+};
+
 export type CreatePurchaseResult = { id: string; total: number };
 
 export const PURCHASES_LIST_LIMIT = 200;

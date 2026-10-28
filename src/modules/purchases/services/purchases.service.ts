@@ -4,6 +4,7 @@ import type { SalesRange } from "@/modules/sales/schemas";
 import type { CreatePurchaseInput } from "../schemas";
 import type {
   CreatePurchaseResult,
+  PurchaseDetail,
   PurchaseSummary,
   SupplierLink,
   SupplierOption,
@@ -14,6 +15,8 @@ export const createPurchase = async (input: CreatePurchaseInput) =>
 
 export const listPurchases = async (range: SalesRange) =>
   (await api.get<PurchaseSummary[]>("/purchases", { params: range })).data;
+
+export const getPurchase = async (id: string) => (await api.get<PurchaseDetail>(`/purchases/${id}`)).data;
 
 export const searchSuppliers = async (q: string) =>
   (await api.get<SupplierOption[]>("/suppliers", { params: { q } })).data;

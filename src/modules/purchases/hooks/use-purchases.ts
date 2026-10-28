@@ -8,6 +8,7 @@ import type { SalesRange } from "@/modules/sales/schemas";
 import {
   catalogNames,
   createPurchase,
+  getPurchase,
   listPurchases,
   searchSuppliers,
   supplierLinks,
@@ -22,6 +23,9 @@ export const usePurchases = (range: SalesRange | null) =>
     queryFn: () => listPurchases(range!),
     enabled: !!range,
   });
+
+export const usePurchase = (id: string | null) =>
+  useQuery({ queryKey: ["purchases", "detail", id], queryFn: () => getPurchase(id!), enabled: !!id });
 
 export const useSupplierSuggestions = (q: string) =>
   useQuery({
