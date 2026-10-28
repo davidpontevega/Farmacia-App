@@ -45,7 +45,7 @@ export function ProductCatalog({ onPrescription }: { onPrescription: () => void 
             className="h-12 rounded-xl border-2 border-primary bg-card pl-12 text-base md:text-base"
           />
         </div>
-        <Button type="button" variant="outline" size="lg" className="rounded-xl" onClick={onPrescription}>
+        <Button type="button" size="lg" className="h-12 rounded-xl" onClick={onPrescription}>
           <ClipboardList className="size-4" aria-hidden="true" />
           Receta
         </Button>
