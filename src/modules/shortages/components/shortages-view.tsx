@@ -2,6 +2,7 @@
 
 import { Download, Copy, PackageX, Plus } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
+import { TabBar, tabPanelProps, type TabDef } from "@/components/shared/tab-bar";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { STATUS_LABEL, type ShortageGroup, type ShortageStatus } from "../types"
 import { ShortageDialog } from "./shortage-dialog";
 
 const STATUSES: ShortageStatus[] = ["OPEN", "ORDERED", "RECEIVED", "DISMISSED"];
+const STATUS_TABS: TabDef<ShortageStatus>[] = STATUSES.map((id) => ({ id, label: STATUS_LABEL[id] }));
 
 function downloadCsv(rows: ShortageGroup[], status: ShortageStatus) {
   const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" }); // ya trae BOM y «;» como los reportes
@@ -58,20 +60,10 @@ export function ShortagesView() {
         </Can>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="group" aria-label="Estado" className="flex gap-1.5">
-          {STATUSES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              aria-pressed={status === s}
-              onClick={() => setStatus(s)}
-              className={`min-h-9 rounded-full border px-4 text-sm transition-colors ${status === s ? "border-primary bg-primary font-semibold text-primary-foreground" : "bg-card text-muted-foreground hover:bg-muted"}`}
-            >
-              {STATUS_LABEL[s]}
-            </button>
-          ))}
-        </div>
+      <TabBar label="Estado" idPrefix="faltantes" tabs={STATUS_TABS} value={status} onChange={setStatus} />
+
+      <div {...tabPanelProps("faltantes", status)} className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <div className="flex gap-2">
           <Button variant="outline" size="sm" disabled={!data?.length} onClick={copy}>
             <Copy className="size-4" aria-hidden="true" />
@@ -140,6 +132,7 @@ export function ShortagesView() {
           </TableBody>
         </Table>
       )}
+      </div>
 
       <Dialog open={!!toResolve} onOpenChange={(open) => !open && setToResolve(null)}>
         <DialogContent>
