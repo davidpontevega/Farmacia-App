@@ -14,7 +14,7 @@ import {
 } from "../services/purchases.service";
 
 // Una compra cambia stock, productos nuevos o precios, kardex, historial y lo aprendido del proveedor.
-const AFFECTED = ["purchases", "products", "lots", "kardex", "suppliers", "supplier-links", "catalog-names"];
+const AFFECTED = ["purchases", "products", "lots", "kardex", "suppliers", "supplier-links", "catalog-names", "shortages"];
 
 export const usePurchases = (range: SalesRange | null) =>
   useQuery({

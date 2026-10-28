@@ -28,7 +28,7 @@ export const paymentMethodEnum = pgEnum("payment_method", [
   "MIXED",
 ]);
 export const shortageSourceEnum = pgEnum("shortage_source", ["PRESCRIPTION", "MANUAL", "SEARCH"]);
-export const shortageStatusEnum = pgEnum("shortage_status", ["OPEN", "ORDERED", "DISMISSED"]);
+export const shortageStatusEnum = pgEnum("shortage_status", ["OPEN", "ORDERED", "DISMISSED", "RECEIVED"]);
 export const saleStatusEnum = pgEnum("sale_status", ["COMPLETED", "VOIDED"]);
 export const productConditionEnum = pgEnum("product_condition", [
   "GOOD",

@@ -7,7 +7,8 @@ import type { CreateShortagesInput } from "../schemas";
 import { createShortages, listShortages, resolveShortage } from "../services/shortages.service";
 import type { ShortageStatus } from "../types";
 
-export const useShortages = (status: ShortageStatus) => useQuery({ queryKey: ["shortages", status], queryFn: () => listShortages(status) });
+export const useShortages = (status: ShortageStatus, enabled = true) =>
+  useQuery({ queryKey: ["shortages", status], queryFn: () => listShortages(status), enabled });
 
 export function useCreateShortages() {
   const qc = useQueryClient();

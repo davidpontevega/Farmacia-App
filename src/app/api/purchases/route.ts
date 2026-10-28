@@ -20,6 +20,11 @@ export const POST = handle(async (req) => {
     throw new ForbiddenError();
   }
 
+  // Cerrar faltantes desde una compra exige poder gestionarlos.
+  if (input.coversShortages?.length && !permissions.includes("shortages.update")) {
+    throw new ForbiddenError();
+  }
+
   return NextResponse.json(await createPurchase(user.id, input), { status: 201 });
 });
 

@@ -21,7 +21,7 @@ export const createShortagesSchema = z.object({
 });
 
 export const shortagesQuerySchema = z.object({
-  status: z.enum(["OPEN", "ORDERED", "DISMISSED"]).default("OPEN"),
+  status: z.enum(["OPEN", "ORDERED", "DISMISSED", "RECEIVED"]).default("OPEN"),
 });
 
 export const resolveShortageSchema = z.object({

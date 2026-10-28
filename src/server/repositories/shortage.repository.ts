@@ -1,4 +1,5 @@
 import { and, count, desc, eq, gte, inArray, max, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/server/db";
 import type { Executor } from "@/server/db/types";
 import { shortages, users } from "@/server/db/schema";
@@ -30,6 +31,7 @@ export async function insertNew(userId: string, rows: NewShortage[], since: Date
 
 /** Agrupado por nombre normalizado: más pedidos primero y, de ahí, el pedido más reciente. */
 export async function listGrouped(status: ShortageStatus, ex: Executor = db): Promise<ShortageGroup[]> {
+  const resolver = alias(users, "resolver");
   const rows = await ex
     .select({
       nameKey: shortages.nameKey,
@@ -38,14 +40,18 @@ export async function listGrouped(status: ShortageStatus, ex: Executor = db): Pr
       totalQuantity: sql<number>`sum(${shortages.quantity})::int`,
       lastAt: max(shortages.createdAt),
       lastBy: sql<string>`(array_agg(${users.name} order by ${shortages.createdAt} desc))[1]`,
+      resolvedAt: max(shortages.resolvedAt),
+      resolvedBy: sql<string | null>`(array_agg(${resolver.name} order by ${shortages.resolvedAt} desc nulls last))[1]`,
     })
     .from(shortages)
     .innerJoin(users, eq(users.id, shortages.userId))
+    .leftJoin(resolver, eq(resolver.id, shortages.resolvedBy))
     .where(eq(shortages.status, status))
     .groupBy(shortages.nameKey)
     .orderBy(desc(count()), desc(max(shortages.createdAt)))
     .limit(LIST_LIMIT);
-  return rows.map((r) => ({ ...r, lastAt: new Date(r.lastAt as unknown as string | Date).toISOString() }));
+  const iso = (v: unknown) => (v ? new Date(v as string | Date).toISOString() : null);
+  return rows.map((r) => ({ ...r, lastAt: iso(r.lastAt)!, resolvedAt: iso(r.resolvedAt) }));
 }
 
 /** Cambia a todos los pedidos abiertos de ese nombre. Devuelve cuántas filas cambió. */
@@ -54,6 +60,16 @@ export async function resolveOpenByKey(nameKey: string, status: "ORDERED" | "DIS
     .update(shortages)
     .set({ status, resolvedAt: new Date(), resolvedBy: userId })
     .where(and(eq(shortages.nameKey, nameKey), eq(shortages.status, "OPEN")))
+    .returning({ id: shortages.id });
+  return rows.length;
+}
+
+/** Pasa a «Recibido» los pedidos abiertos o ya marcados «Pedido» de ese nombre, ligados a la compra. Devuelve cuántas filas cambió. */
+export async function markReceived(nameKey: string, purchaseId: string, userId: string, ex: Executor) {
+  const rows = await ex
+    .update(shortages)
+    .set({ status: "RECEIVED", purchaseId, resolvedAt: new Date(), resolvedBy: userId })
+    .where(and(eq(shortages.nameKey, nameKey), inArray(shortages.status, ["OPEN", "ORDERED"])))
     .returning({ id: shortages.id });
   return rows.length;
 }

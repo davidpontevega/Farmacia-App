@@ -55,6 +55,8 @@ export const createPurchaseSchema = z
       .optional(),
     otherCharges: z.number().int().min(0).max(MAX_PURCHASE_TOTAL).default(0),
     items: z.array(purchaseItemSchema).min(1, "Agrega al menos un ítem").max(200),
+    // Faltantes (nombre normalizado) que esta compra cubre; se marcan «Recibido» en la misma transacción (spec 019).
+    coversShortages: z.array(z.string().trim().min(1).max(120)).max(50).optional(),
   })
   .refine((v) => purchaseTotal(v.items) + v.otherCharges <= MAX_PURCHASE_TOTAL, {
     message: "El total de la compra es demasiado grande",

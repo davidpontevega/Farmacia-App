@@ -5,10 +5,12 @@ import { NEW_PRODUCT_MIN_STOCK } from "@/lib/constants";
 import { BusinessRuleError, ConflictError, NotFoundError } from "@/lib/errors";
 import { autoLotNumber } from "@/lib/purchase-rules";
 import { findDuplicateLot, nameKey, productKey, purchaseTotal } from "@/lib/purchases";
+import { shortageKey } from "@/lib/shortages";
 import type { CreatePurchaseInput } from "@/modules/purchases/schemas";
 import * as inventoryRepo from "@/server/repositories/inventory.repository";
 import * as productRepo from "@/server/repositories/product.repository";
 import * as purchaseRepo from "@/server/repositories/purchase.repository";
+import * as shortageRepo from "@/server/repositories/shortage.repository";
 import * as supplierRepo from "@/server/repositories/supplier.repository";
 import { createLotIn } from "./inventory.service";
 
@@ -51,6 +53,15 @@ export async function createPurchase(userId: string, input: CreatePurchaseInput)
       tx,
     );
     const reason = `Compra ${input.documentNumber ?? purchase.id}`;
+
+    // Faltantes que esta compra cubre: en la misma transacción, así que si la compra falla ninguno cambia.
+    // Auditoría sin nombres de medicamentos: solo la compra y cuántas filas pasaron a «Recibido».
+    for (const key of new Set((input.coversShortages ?? []).map(shortageKey))) {
+      const rows = await shortageRepo.markReceived(key, purchase.id, userId, tx);
+      if (rows > 0) {
+        await writeAudit(tx, { actorId: userId, action: "shortage.status_changed", entityType: "shortage", changes: { status: "RECEIVED", purchaseId: purchase.id, rows } });
+      }
+    }
 
     const newProducts = new Map<string, { id: string; name: string }>();
     const rows: Parameters<typeof purchaseRepo.insertItems>[0] = [];

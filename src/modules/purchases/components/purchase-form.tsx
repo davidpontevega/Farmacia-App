@@ -48,6 +48,7 @@ import { OcrViewer } from "./ocr-viewer";
 import { PasteRowsDialog } from "./paste-rows-dialog";
 import { PurchaseHeader } from "./purchase-header";
 import { PurchaseRowView } from "./purchase-row";
+import { ShortagesCoverPanel, useCoverSuggestions } from "./shortages-cover-panel";
 
 const NO_LINKS: SupplierLink[] = [];
 const COLUMNS = [
@@ -76,7 +77,7 @@ const focusRow = (index: number) =>
 
 export function PurchaseForm() {
   const today = todayLima();
-  const { userId } = usePermissions();
+  const { userId, can } = usePermissions();
   const key = userId ? draftKey(userId) : null;
   const create = useCreatePurchase(() => clearDraft(key));
   const catalogQuery = useCatalogNames();
@@ -90,6 +91,8 @@ export function PurchaseForm() {
   const [pasteOpen, setPasteOpen] = useState(false);
   const [ocr, setOcr] = useState<{ id: string; fileName: string; pages: OcrRead["pages"]; rowCount: number; shippingCents: number; notes: string[] } | null>(null);
   const [focusRef, setFocusRef] = useState<string | null>(null);
+  // Faltantes que el usuario desmarcó o marcó a mano (lo demás sigue la sugerencia).
+  const [coverOverrides, setCoverOverrides] = useState<Record<string, boolean>>({});
 
   // Borrador: se guarda solo; si hay uno de una visita anterior, se ofrece restaurarlo antes de guardar encima.
   const stored = useStoredDraft(key);
@@ -260,6 +263,10 @@ export function PurchaseForm() {
     );
 
   // Totales y cuadre
+  const coverLines = filled.map((r) => ({ id: r.key, name: r.isNew ? r.description : r.productName })).filter((l) => l.name.trim());
+  const covers = useCoverSuggestions(coverLines, can("shortages.read") && can("shortages.update"));
+  const isCovered = (nameKey: string) => coverOverrides[nameKey] ?? covers.find((s) => s.group.nameKey === nameKey)?.checked ?? false;
+  const coversShortages = covers.filter((s) => isCovered(s.group.nameKey)).map((s) => s.group.nameKey);
   const totals = rowsTotals(filled);
   const otherCents = header.otherCharges.trim() ? (isValidSoles(header.otherCharges) ? toCents(header.otherCharges) : null) : 0;
   const documentTotalCents = documentTotal.trim() ? (isValidSoles(documentTotal) ? toCents(documentTotal) : null) : null;
@@ -296,6 +303,7 @@ export function PurchaseForm() {
     setDocumentTotal("");
     setMargin("");
     setOcr(null);
+    setCoverOverrides({});
     clearDraft(key);
   };
 
@@ -309,7 +317,7 @@ export function PurchaseForm() {
   };
 
   const submit = () =>
-    create.mutate(buildPayload(header, filled), { onSuccess: reset });
+    create.mutate({ ...buildPayload(header, filled), ...(coversShortages.length > 0 ? { coversShortages } : {}) }, { onSuccess: reset });
 
   const card = "rounded-2xl border bg-card p-5";
   const linesLabel = `${filled.length} ${filled.length === 1 ? "fila" : "filas"}`;
@@ -528,6 +536,8 @@ export function PurchaseForm() {
           </p>
         )}
       </section>
+
+      <ShortagesCoverPanel suggestions={covers} isChecked={isCovered} onToggle={(k, v) => setCoverOverrides((o) => ({ ...o, [k]: v }))} />
 
       {pasteOpen && <PasteRowsDialog onAdd={addPasted} onClose={() => setPasteOpen(false)} />}
     </div>

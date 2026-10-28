@@ -1,7 +1,7 @@
 ---
 id: 019
 title: Cerrar faltantes al registrar la compra que los cubre
-status: approved
+status: done
 module: shortages
 scope: all
 ---

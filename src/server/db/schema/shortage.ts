@@ -2,6 +2,7 @@ import { check, index, integer, pgTable, text, timestamp, uuid } from "drizzle-o
 import { sql } from "drizzle-orm";
 import { createdAt, id, shortageSourceEnum, shortageStatusEnum } from "./_shared";
 import { products } from "./product";
+import { purchases } from "./purchase";
 import { users } from "./user";
 
 /** Medicamento pedido que no se pudo atender (spec 017). Una fila por pedido; el conteo sale de agrupar por `nameKey`. */
@@ -23,6 +24,8 @@ export const shortages = pgTable(
       .references(() => users.id),
     resolvedAt: timestamp("resolved_at", { withTimezone: true }),
     resolvedBy: uuid("resolved_by").references(() => users.id),
+    /** Compra que cubrió este faltante (estado RECIBIDO). */
+    purchaseId: uuid("purchase_id").references(() => purchases.id),
     createdAt: createdAt(),
   },
   (t) => [

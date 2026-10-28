@@ -15,7 +15,7 @@ import { useResolveShortage, useShortages } from "../hooks/use-shortages";
 import { STATUS_LABEL, type ShortageGroup, type ShortageStatus } from "../types";
 import { ShortageDialog } from "./shortage-dialog";
 
-const STATUSES: ShortageStatus[] = ["OPEN", "ORDERED", "DISMISSED"];
+const STATUSES: ShortageStatus[] = ["OPEN", "ORDERED", "RECEIVED", "DISMISSED"];
 
 function downloadCsv(rows: ShortageGroup[], status: ShortageStatus) {
   const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" }); // ya trae BOM y «;» como los reportes
@@ -100,13 +100,14 @@ export function ShortagesView() {
               <TableHead className="text-right">Veces pedido</TableHead>
               <TableHead className="text-right">Cantidad total</TableHead>
               <TableHead>Último pedido</TableHead>
+              {status !== "OPEN" && <TableHead>{status === "RECEIVED" ? "Recibido" : status === "ORDERED" ? "Pedido" : "Descartado"}</TableHead>}
               <TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                <TableCell colSpan={status === "OPEN" ? 5 : 6} className="text-center text-muted-foreground">
                   {status === "OPEN" ? "No hay faltantes abiertos" : "Nada en esta lista"}
                 </TableCell>
               </TableRow>
@@ -119,6 +120,9 @@ export function ShortagesView() {
                 <TableCell className="text-xs text-muted-foreground">
                   {formatDateTime(g.lastAt)} · {g.lastBy}
                 </TableCell>
+                {status !== "OPEN" && (
+                  <TableCell className="text-xs text-muted-foreground">{g.resolvedAt ? `${formatDateTime(g.resolvedAt)} · ${g.resolvedBy ?? ""}` : ""}</TableCell>
+                )}
                 <TableCell className="text-right">
                   {status === "OPEN" && (
                     <Can permission="shortages.update">
