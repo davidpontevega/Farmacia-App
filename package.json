@@ -13,6 +13,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx --env-file=.env.local src/server/db/seed.ts",
+    "db:permissions": "tsx --env-file=.env.local src/server/db/seed.ts --permissions",
     "test": "node --env-file=.env.local --import tsx --test \"src/**/*.test.ts\""
   },
   "dependencies": {

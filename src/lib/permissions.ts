@@ -11,6 +11,7 @@ export const PERMISSION_ACTIONS = {
   roles: ["read", "manage"],
   audit: ["read"],
   reports: ["read"],
+  shortages: ["create", "read", "update"],
 } as const;
 
 type Actions = typeof PERMISSION_ACTIONS;
@@ -35,6 +36,7 @@ export const CASHIER_PERMISSIONS: readonly PermissionCode[] = [
   "returns.create",
   "products.read",
   "inventory.read",
+  "shortages.create",
 ];
 
 export function splitPermission(code: PermissionCode) {

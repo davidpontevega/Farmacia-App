@@ -12,9 +12,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
 import { formatLocation } from "@/lib/location";
 import { formatSoles } from "@/lib/money";
-import { mainTerm, MAX_PRESCRIPTION_LINES, MAX_QUANTITY, parsePrescription, rankLine } from "@/lib/prescription";
+import { classifyLines, mainTerm, MAX_PRESCRIPTION_LINES, MAX_QUANTITY, parsePrescription, rankLine } from "@/lib/prescription";
 import { isUncertainLine } from "@/lib/prescription-read";
 import { useProductsByTerms } from "@/modules/products/hooks/use-products";
+import { useCreateShortages } from "@/modules/shortages/hooks/use-shortages";
 import { useCartStore } from "../store/cart-store";
 import { PrescriptionPhoto } from "./prescription-photo";
 
@@ -52,6 +53,18 @@ export function PrescriptionDialog({ readerEnabled, onClose }: { readerEnabled: 
   );
   const included = rows.filter((r) => !r.dropped && r.chosen);
 
+  // Spec 017: lo que no se pudo atender se anota como faltante (el cajero puede quitar líneas con la casilla).
+  const createShortages = useCreateShortages();
+  const [keep, setKeep] = useState<Record<number, boolean>>({});
+  const { unattended, pending } = useMemo(
+    () =>
+      classifyLines(
+        rows.map((r) => ({ line: r.line, candidates: r.ranked.candidates, chosenId: r.chosen?.id ?? null, none: r.none, dropped: r.dropped, failed: r.error, wanted: r.wanted })),
+      ),
+    [rows],
+  );
+  const toNote = unattended.filter((u) => keep[u.index] !== false);
+
   const addAll = () => {
     const ids = new Set<string>();
     let capped = 0;
@@ -65,8 +78,12 @@ export function PrescriptionDialog({ readerEnabled, onClose }: { readerEnabled: 
       cart.setQuantity(chosen.id, current + quantity);
       ids.add(chosen.id);
     }
-    toast.success(`${ids.size} ${ids.size === 1 ? "producto agregado" : "productos agregados"} al carrito`);
+    if (ids.size > 0) toast.success(`${ids.size} ${ids.size === 1 ? "producto agregado" : "productos agregados"} al carrito`);
     if (capped > 0) toast.warning(`${capped} ${capped === 1 ? "cantidad quedó limitada" : "cantidades quedaron limitadas"} al stock disponible; revisa el carrito`, { duration: 8000 });
+    // El carrito ya quedó listo: anotar es secundario, y su aviso (con reintento) vive en el hook.
+    if (toNote.length > 0) {
+      createShortages.mutate({ items: toNote.map((u) => ({ name: u.name, quantity: u.quantity, source: "PRESCRIPTION" as const, productId: u.productId ?? undefined })) });
+    }
     onClose();
   };
 
@@ -95,6 +112,7 @@ export function PrescriptionDialog({ readerEnabled, onClose }: { readerEnabled: 
             onSubmit={(e) => {
               e.preventDefault();
               setOverrides({});
+              setKeep({});
               setSubmitted(text);
             }}
           >
@@ -248,12 +266,34 @@ export function PrescriptionDialog({ readerEnabled, onClose }: { readerEnabled: 
               </ul>
             )}
 
+            {!loading && unattended.length > 0 && (
+              <fieldset className="rounded-xl border bg-warning-soft/40 p-3">
+                <legend className="px-1 text-xs font-semibold text-warning">Sin atender: se anotarán como faltantes</legend>
+                <ul className="flex flex-col">
+                  {unattended.map((u) => (
+                    <li key={u.index}>
+                      <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm">
+                        <input type="checkbox" checked={keep[u.index] !== false} onChange={(e) => setKeep((k) => ({ ...k, [u.index]: e.target.checked }))} />
+                        <span className="flex-1">{u.name}</span>
+                        <span className="text-xs text-muted-foreground tabular-nums">x {u.quantity}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </fieldset>
+            )}
+            {!loading && pending > 0 && (
+              <p role="status" className="text-xs text-muted-foreground">
+                {pending} {pending === 1 ? "línea sin elegir no se anota" : "líneas sin elegir no se anotan"} como faltante.
+              </p>
+            )}
+
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setSubmitted(null)}>
                 Editar texto
               </Button>
-              <Button type="button" variant="success" disabled={loading || included.length === 0} onClick={addAll}>
-                Agregar al carrito{included.length > 0 ? ` (${included.length})` : ""}
+              <Button type="button" variant="success" disabled={loading || (included.length === 0 && toNote.length === 0)} onClick={addAll}>
+                {included.length > 0 ? `Agregar al carrito (${included.length})` : "Anotar faltantes"}
               </Button>
             </DialogFooter>
           </div>

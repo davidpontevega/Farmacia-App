@@ -131,6 +131,11 @@ async function seedProducts(userId: string) {
 
 async function main() {
   const admin = await seedPermissionsAndRoles();
+  // Solo sincroniza permisos nuevos (sin tocar usuarios ni productos de ejemplo): `npm run db:permissions`.
+  if (process.argv.includes("--permissions")) {
+    console.log("Permisos sincronizados");
+    return;
+  }
   const user = await seedSuperAdmin(admin.id);
   await seedProducts(user.id);
   console.log("Seed completo");
