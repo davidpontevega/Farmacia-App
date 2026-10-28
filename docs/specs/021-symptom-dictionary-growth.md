@@ -1,7 +1,7 @@
 ---
 id: 021
 title: Ampliar el diccionario de síntomas y registrar las consultas sin resultado
-status: approved
+status: done
 module: consult
 scope: all
 ---
@@ -34,7 +34,10 @@ Migración `0014`: tabla `symptom_misses` (`id`, `query` único, `count`, `first
 ## Decisiones tomadas
 - Contenido en código y no editable en pantalla: es información sanitaria que debe revisarse como cualquier cambio.
 - Sin guardar usuario ni consultas largas: lo que se escribe en un buscador puede incluir datos de un paciente.
+- Límite conocido: una frase corta de solo letras puede ser un nombre de persona («juan perez»). Se acepta porque la tabla es anónima, se borra a los 90 días, solo la ve administración y cada fila se puede quitar.
+- La coincidencia por palabra clave exige que empiece una palabra del texto («alergias» encuentra «alergia», «piojos» ya no encuentra «ojos»); se pierde la coincidencia en medio de palabra.
+- La pseudoefedrina se quedó fuera de los grupos: es un producto restringido y riesgoso para hipertensos.
 - Los grupos nuevos son un borrador técnico; **un químico farmacéutico debe revisarlos** antes de usarlos con clientes.
 
 ## Pendiente del usuario
-- Que un químico farmacéutico revise los grupos y principios activos nuevos antes de producción.
+- Que un químico farmacéutico revise los grupos y principios activos nuevos antes de producción, en especial diclofenaco, naproxeno e hidrocortisona (que según la normativa local podrían requerir receta y hoy no están marcados).

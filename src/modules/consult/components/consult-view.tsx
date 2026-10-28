@@ -12,6 +12,8 @@ import { formatLocation } from "@/lib/location";
 import { formatSoles } from "@/lib/money";
 import { interpret, matchProducts, MEDICAL_NOTICE, QUICK_QUERIES, type Interpretation } from "@/lib/symptoms";
 import { useProducts } from "@/modules/products/hooks/use-products";
+import { MissesPanel } from "./misses-panel";
+import { useReportMiss } from "../hooks/use-misses";
 
 type Recent = { query: string; at: Date };
 
@@ -19,6 +21,7 @@ export function ConsultView() {
   const [text, setText] = useState("");
   const [asked, setAsked] = useState<string | null>(null);
   const [recent, setRecent] = useState<Recent[]>([]);
+  const reportMiss = useReportMiss();
 
   const reading: Interpretation | null = useMemo(() => (asked ? interpret(asked) : null), [asked]);
   const ingredients = reading?.found ? reading.ingredients : undefined;
@@ -31,6 +34,8 @@ export function ConsultView() {
     if (!q) return;
     setText(q);
     setAsked(q);
+    // Spec 021: lo que no se encontró se anota (anónimo) para ampliar el diccionario; el servidor descarta frases con datos.
+    if (!interpret(q).found) reportMiss.mutate(q);
     setRecent((r) => [{ query: q, at: new Date() }, ...r.filter((x) => x.query !== q)].slice(0, 5));
   };
 
@@ -167,6 +172,8 @@ export function ConsultView() {
           </ul>
         </section>
       )}
+
+      <MissesPanel />
     </div>
   );
 }

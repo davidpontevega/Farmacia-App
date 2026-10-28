@@ -34,15 +34,32 @@ export const SYMPTOM_GROUPS: readonly SymptomGroup[] = [
   { keywords: ["insomnio", "no puedo dormir", "dormir", "sueño"], category: "Otro", ingredients: ["melatonina", "valeriana", "difenhidramina"], description: "Para conciliar el sueño" },
   { keywords: ["ansiedad", "nervios", "estres", "tension"], category: "Otro", ingredients: ["valeriana", "passiflora", "tilo"], description: "Para la ansiedad y el estrés" },
   { keywords: ["dolor abdominal", "abdomen", "vientre", "retortijon", "colicos", "menstruales"], category: "Antiespasmódico", ingredients: ["butilhioscina", "diciclomina", "paracetamol"], description: "Para dolor abdominal y cólicos" },
+  // Spec 021: situaciones comunes de botica. Borrador técnico: debe revisarlo un químico farmacéutico antes de usarse con clientes.
+  { keywords: ["acne", "granos", "espinillas", "barros"], category: "Dermatológico", ingredients: ["peroxido de benzoilo", "acido salicilico", "adapaleno", "clindamicina"], description: "Para el acné y los granos" },
+  { keywords: ["quemadura", "quemaduras", "quemadura de sol", "me queme", "insolacion"], category: "Dermatológico", ingredients: ["sulfadiazina de plata", "dexpantenol", "aloe vera"], description: "Para quemaduras leves y quemadura de sol" },
+  { keywords: ["herpes", "herpes labial", "ampolla en el labio"], category: "Antiviral", ingredients: ["aciclovir"], description: "Para el herpes labial" },
+  { keywords: ["hemorroides", "almorranas", "fisura anal"], category: "Dermatológico", ingredients: ["lidocaina", "hidrocortisona", "diosmina", "hesperidina", "hamamelis"], description: "Para hemorroides" },
+  { keywords: ["piojos", "pediculosis", "liendres"], category: "Antiparasitario", ingredients: ["permetrina", "dimeticona", "ivermectina"], description: "Para piojos y liendres" },
+  { keywords: ["congestion nasal", "nariz tapada", "sinusitis", "mocos", "rinorrea"], category: "Descongestionante", ingredients: ["oximetazolina", "xilometazolina", "suero fisiologico"], description: "Para la congestión nasal y la sinusitis" },
+  { keywords: ["dolor de rodilla", "artrosis", "artritis", "articulaciones", "dolor de huesos", "reumatismo"], category: "Analgésico", ingredients: ["diclofenaco", "naproxeno", "ibuprofeno", "glucosamina", "condroitina"], description: "Para el dolor articular" },
+  { keywords: ["varices", "piernas cansadas", "piernas hinchadas", "circulacion"], category: "Vascular", ingredients: ["diosmina", "hesperidina", "castaño de indias", "troxerrutina"], description: "Para piernas cansadas y várices" },
+  { keywords: ["aftas", "llagas en la boca", "dolor de boca", "llaga en la boca"], category: "Bucal", ingredients: ["clorhexidina", "benzocaina", "lidocaina", "acido hialuronico"], description: "Para aftas y llagas en la boca" },
+  { keywords: ["pañalitis", "irritacion del pañal", "dermatitis", "rozadura", "salpullido", "sarpullido"], category: "Dermatológico", ingredients: ["oxido de zinc", "dexpantenol", "hidrocortisona", "clotrimazol"], description: "Para pañalitis, rozaduras y dermatitis" },
+  { keywords: ["picadura", "zancudo", "mosquito", "pulgas", "piquete"], category: "Dermatológico", ingredients: ["hidrocortisona", "calamina", "difenhidramina", "loratadina", "cetirizina"], description: "Para picaduras de insectos" },
+  { keywords: ["ojo seco", "resequedad ocular", "lagrimas artificiales", "ardor ocular"], category: "Oftálmico", ingredients: ["hialuronato de sodio", "carboximetilcelulosa", "hipromelosa", "polietilenglicol"], description: "Para el ojo seco" },
+  { keywords: ["colesterol", "trigliceridos", "acido urico", "podagra"], category: "Metabólico", ingredients: ["atorvastatina", "simvastatina", "omega 3", "alopurinol", "colchicina"], description: "Para el colesterol y el ácido úrico" },
+  { keywords: ["deshidratacion", "suero oral", "rehidratacion", "sed intensa"], category: "Hidratación", ingredients: ["sales de rehidratacion oral", "suero oral", "electrolitos"], description: "Para la deshidratación" },
 ];
 
-/** Principios que solo se venden con receta (antibióticos, antihipertensivos, antidiabéticos, antieméticos). Los psicotrópicos (alprazolam…) no se sugieren. */
+/** Principios que solo se venden con receta (antibióticos, antihipertensivos, antidiabéticos, antieméticos, estatinas, antivirales, antigotosos). Los psicotrópicos (alprazolam…) no se sugieren. */
 const RX = new Set(
   [
     "amoxicilina", "azitromicina", "cefalexina", "ciprofloxacino", "ciprofloxacino oftalmico", "norfloxacino", "nitrofurantoina", "trimetoprim", "fosfomicina", "tobramicina", "cloranfenicol", "metronidazol", "tinidazol",
     "enalapril", "losartan", "amlodipino", "captopril", "metoprolol",
     "metformina", "glibenclamida", "glimepirida", "sitagliptina",
     "ondansetron", "metoclopramida",
+    "adapaleno", "clindamicina", "sulfadiazina de plata", "aciclovir", "ivermectina",
+    "atorvastatina", "simvastatina", "alopurinol", "colchicina",
   ].map(normalize),
 );
 
@@ -59,6 +76,14 @@ const FILLER = new Set(["para", "algo", "tengo", "tiene", "tienen", "pastilla", 
 
 const NORMALIZED = SYMPTOM_GROUPS.map((g) => ({ group: g, keywords: g.keywords.map(normalize), ingredients: g.ingredients.map(normalize) }));
 
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * La clave aparece al comienzo de alguna palabra del texto: «alergias» contiene «alergia», pero «piojos» no contiene «ojos».
+ * Antes bastaba con que el texto la contuviera en cualquier parte y «piojos» sugería antibióticos para los ojos.
+ */
+export const hasKeyword = (text: string, keyword: string) => new RegExp(`(?:^|[^a-z0-9])${escapeRe(keyword)}`).test(text);
+
 export type Interpretation =
   | { found: true; description: string; ingredients: string[] }
   | { found: false; suggestions: string[] };
@@ -66,7 +91,7 @@ export type Interpretation =
 /** Qué grupos de síntomas describe lo escrito: por frase completa y, si no hay, palabra por palabra. */
 export function interpret(query: string): Interpretation {
   const q = normalize(query);
-  let hits = NORMALIZED.filter((g) => g.keywords.some((k) => q.includes(k)));
+  let hits = NORMALIZED.filter((g) => g.keywords.some((k) => hasKeyword(q, k)));
   if (hits.length === 0) {
     const words = q.split(" ").filter((w) => w.length > 3 && !FILLER.has(w));
     hits = NORMALIZED.filter((g) => words.some((w) => g.keywords.some((k) => k.includes(w)) || g.ingredients.some((i) => i.split(" ").some((t) => t.startsWith(w)))));
