@@ -1,5 +1,7 @@
 "use client";
 
+import { SearchX } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
@@ -16,7 +18,7 @@ export function MissesPanel() {
   if (!allowed) return null;
 
   return (
-    <section className="rounded-2xl border bg-card p-5">
+    <section className="card-surface p-5">
       <h2 className="text-sm font-semibold">Consultas sin resultado</h2>
       <p className="mb-3 text-xs text-muted-foreground">Lo que más se busca y no está en el diccionario (últimos 90 días). No guarda quién consultó. Si aparece un nombre de persona, quítalo.</p>
       {isLoading && <Skeleton aria-busy="true" aria-label="Cargando" className="h-16 w-full" />}
@@ -25,7 +27,7 @@ export function MissesPanel() {
           {apiErrorMessage(error)}
         </p>
       )}
-      {data && data.length === 0 && <p className="text-sm text-muted-foreground">Todavía no hay consultas sin resultado.</p>}
+      {data && data.length === 0 && <EmptyState icon={SearchX} title="Todavía no hay consultas sin resultado" description="Lo que se busque y no esté en el diccionario aparecerá aquí." />}
       {data && data.length > 0 && (
         <ul className="flex flex-col divide-y">
           {data.map((m) => (

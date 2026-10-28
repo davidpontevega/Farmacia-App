@@ -1,5 +1,7 @@
 "use client";
 
+import { Receipt } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
 import { formatDateTime } from "@/lib/dates";
@@ -13,11 +15,11 @@ export function ShiftSalesCard({ proofEnabled }: { proofEnabled: boolean }) {
   const { data, isLoading, error } = useShiftSales();
 
   return (
-    <div className="rounded-2xl border bg-card p-5">
+    <div className="card-surface p-5">
       <h2 className="mb-3 text-base font-semibold">Ventas del turno</h2>
       {isLoading && <Skeleton className="h-16 w-full" />}
       {error && <p className="text-destructive">{apiErrorMessage(error)}</p>}
-      {data && data.length === 0 && <p className="text-sm text-muted-foreground">Aún no hay ventas</p>}
+      {data && data.length === 0 && <EmptyState icon={Receipt} title="Aún no hay ventas en este turno" description="Cuando cobres, aparecerán aquí." />}
       {data && data.length > 0 && (
         <ul className="flex flex-col divide-y">
           {data.map((s) => (

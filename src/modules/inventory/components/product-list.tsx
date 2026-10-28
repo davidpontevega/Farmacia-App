@@ -29,7 +29,7 @@ export function ProductList({
   const { data, isLoading, error } = useProducts({ q, page: 1, includeInactive: false });
 
   return (
-    <section aria-label="Productos" className="flex min-h-0 flex-col gap-3 rounded-2xl border bg-card p-4 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)]">
+    <section aria-label="Productos" className="flex min-h-0 flex-col gap-3 card-surface p-4 lg:sticky lg:top-4 lg:max-h-[calc(100vh-2rem)]">
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <Input aria-label="Buscar producto" placeholder="Buscar producto" value={search} onChange={(e) => setSearch(e.target.value)} className="h-11 pl-9" />

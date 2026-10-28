@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { addDays, formatDate, isRealDate, todayLima } from "./dates";
+import { addDays, formatDate, formatLongDate, isRealDate, todayLima } from "./dates";
 
 test("addDays cruza meses y años", () => {
   assert.equal(addDays("2026-12-25", 10), "2027-01-04");
@@ -20,4 +20,9 @@ test("todayLima usa la fecha de Lima, no la UTC", () => {
 
 test("formatDate", () => {
   assert.equal(formatDate("2027-06-30"), "30/06/2027");
+});
+
+test("formatLongDate: día de la semana, día y mes, con mayúscula inicial", () => {
+  assert.equal(formatLongDate("2026-10-28"), "Miércoles 28 de octubre");
+  assert.equal(formatLongDate("2027-01-01"), "Viernes 1 de enero");
 });

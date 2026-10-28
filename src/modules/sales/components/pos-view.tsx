@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { OPEN_PRESCRIPTION_EVENT } from "@/components/shared/top-bar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
@@ -14,12 +16,40 @@ import { PaymentDialog } from "./payment-dialog";
 import { PrescriptionDialog } from "./prescription-dialog";
 import { ProductCatalog } from "./product-catalog";
 
-export function PosView({ proofEnabled, readerEnabled }: { proofEnabled: boolean; readerEnabled: boolean }) {
+export function PosView({ proofEnabled, readerEnabled, openPrescription }: { proofEnabled: boolean; readerEnabled: boolean; openPrescription: boolean }) {
+  const router = useRouter();
   const { data, isLoading, error } = useActiveShift();
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
   const [paying, setPaying] = useState(false);
-  const [prescribing, setPrescribing] = useState(false);
+  const [prescribing, setPrescribing] = useState(openPrescription);
+  const stale = data?.shift?.stale ?? false;
+  const hasItems = items.length > 0;
+
+  // Viene de «Receta» en el encabezado: el parámetro ya cumplió su función, se quita de la dirección.
+  useEffect(() => {
+    if (openPrescription) router.replace("/pos", { scroll: false });
+  }, [openPrescription, router]);
+
+  // «Receta» del encabezado cuando ya estás aquí.
+  useEffect(() => {
+    const open = () => setPrescribing(true);
+    window.addEventListener(OPEN_PRESCRIPTION_EVENT, open);
+    return () => window.removeEventListener(OPEN_PRESCRIPTION_EVENT, open);
+  }, []);
+
+  // Atajos: F2 cobra (con productos y el turno al día), F4 abre la receta. No actúan con un diálogo abierto.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "F2" && e.key !== "F4") return;
+      if (document.querySelector('[role="dialog"]')) return;
+      e.preventDefault();
+      if (e.key === "F2" && hasItems && !stale) setPaying(true);
+      if (e.key === "F4") setPrescribing(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [hasItems, stale]);
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
   if (error || !data) return <p className="text-destructive">{apiErrorMessage(error)}</p>;
@@ -52,9 +82,12 @@ export function PosView({ proofEnabled, readerEnabled }: { proofEnabled: boolean
       )}
       <ProductCatalog onPrescription={() => setPrescribing(true)} />
 
-      <aside aria-label="Venta actual" className="flex flex-col rounded-2xl border bg-card lg:sticky lg:top-4">
+      <aside aria-label="Venta actual" className="flex flex-col card-surface lg:sticky lg:top-4">
         <div className="flex items-center justify-between border-b px-4 py-1">
-          <h2 className="text-base font-semibold">Venta actual</h2>
+          <h2 className="flex items-center gap-2 text-base font-bold">
+            Venta actual
+            {hasItems && <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-bold text-secondary-foreground">{items.length} {items.length === 1 ? "producto" : "productos"}</span>}
+          </h2>
           <Button variant="ghost" size="sm" className="text-destructive" disabled={items.length === 0} onClick={clear}>
             Vaciar
           </Button>
@@ -70,11 +103,12 @@ export function PosView({ proofEnabled, readerEnabled }: { proofEnabled: boolean
             </div>
             <div className="mt-1 flex items-baseline justify-between border-t pt-2 text-foreground">
               <span className="text-sm font-semibold">Total</span>
-              <span className="text-2xl font-bold tracking-tight tabular-nums">{formatSoles(total)}</span>
+              <span className="text-4xl font-extrabold tracking-tight tabular-nums">{formatSoles(total)}</span>
             </div>
           </div>
-          <Button variant="success" size="lg" className="h-12 text-base font-bold" disabled={items.length === 0 || data.shift.stale} onClick={() => setPaying(true)}>
+          <Button variant="success" size="lg" className="h-14 gap-3 text-lg font-extrabold" disabled={!hasItems || stale} onClick={() => setPaying(true)}>
             Cobrar {formatSoles(total)}
+            <kbd className="rounded-md bg-white/20 px-2 py-0.5 text-xs font-bold">F2</kbd>
           </Button>
           <p className="text-[11px] text-muted-foreground">Turno abierto · apertura {formatSoles(data.shift.openingAmount)}</p>
         </div>

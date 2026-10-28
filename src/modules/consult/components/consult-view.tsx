@@ -41,13 +41,10 @@ export function ConsultView() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-5">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Consulta de medicamentos</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Escribe el síntoma o la necesidad del cliente y mira qué hay en el local.</p>
-      </div>
+      <p className="text-sm text-muted-foreground">Escribe el síntoma o la necesidad del cliente y mira qué hay en el local.</p>
 
       <form
-        className="flex flex-col gap-3 rounded-2xl border bg-card p-5"
+        className="flex flex-col gap-3 card-surface p-5"
         onSubmit={(e) => {
           e.preventDefault();
           ask(text);
@@ -96,7 +93,7 @@ export function ConsultView() {
       )}
 
       {reading?.found && (
-        <section className="flex flex-col gap-4 rounded-2xl border bg-card p-5" aria-live="polite">
+        <section className="flex flex-col gap-4 card-surface p-5" aria-live="polite">
           <div className="border-b pb-3">
             <p className="text-xs text-muted-foreground">Interpretación</p>
             <p className="text-sm font-semibold">{reading.description}</p>
@@ -158,7 +155,7 @@ export function ConsultView() {
       )}
 
       {recent.length > 0 && (
-        <section className="rounded-2xl border bg-card p-5">
+        <section className="card-surface p-5">
           <h2 className="mb-3 text-sm font-semibold">Consultas recientes</h2>
           <ul className="flex flex-col gap-1">
             {recent.map((r) => (

@@ -21,7 +21,6 @@ export function ReturnsView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold tracking-tight">Devoluciones</h1>
 
       <form onSubmit={search} className="flex max-w-md items-end gap-2">
         <div className="flex flex-1 flex-col gap-1">

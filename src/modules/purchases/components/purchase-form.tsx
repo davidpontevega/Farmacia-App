@@ -319,7 +319,7 @@ export function PurchaseForm() {
   const submit = () =>
     create.mutate({ ...buildPayload(header, filled), ...(coversShortages.length > 0 ? { coversShortages } : {}) }, { onSuccess: reset });
 
-  const card = "rounded-2xl border bg-card p-5";
+  const card = "card-surface p-5";
   const linesLabel = `${filled.length} ${filled.length === 1 ? "fila" : "filas"}`;
 
   return (

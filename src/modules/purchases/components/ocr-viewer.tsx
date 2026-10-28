@@ -25,7 +25,7 @@ export function OcrViewer({ readId, pages, focusRef, onClose }: Props) {
   }, [focusRef]);
 
   return (
-    <section aria-label="Documento leído" className="overflow-hidden rounded-2xl border bg-card">
+    <section aria-label="Documento leído" className="overflow-hidden card-surface">
       <div className="flex items-center gap-2 border-b p-3 text-sm">
         <span className="font-semibold">{mine ? `Documento · ítem ${n}` : "Documento"}</span>
         <Button type="button" size="icon" variant="outline" className="size-9" aria-label="Alejar" onClick={() => setZoom((z) => Math.max(50, z - 25))}>

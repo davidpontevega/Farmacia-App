@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ClipboardList, MapPin, PackageX, Pill, Search } from "lucide-react";
+import { ClipboardList, MapPin, PackageX, Pill, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -103,29 +103,35 @@ export function ProductCatalog({ onPrescription }: { onPrescription: () => void 
               <button
                 type="button"
                 disabled={soldOut}
+                aria-label={`Agregar ${p.commercialName} al carrito, ${formatSoles(p.salePrice)}${soldOut ? ", sin stock" : ""}`}
                 onClick={() => add({ productId: p.id, name: p.commercialName, unitPrice: p.salePrice, location: formatLocation(p.shelf, p.shelfRow), stock: p.sellableStock })}
-                className="flex h-full min-h-11 w-full flex-col gap-1.5 rounded-xl border bg-card p-2.5 text-left transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+                className="group flex h-full min-h-44 w-full flex-col gap-2.5 card-surface p-3.5 text-left shadow-sm transition-all hover:border-primary hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-60 disabled:shadow-none"
               >
                 <span className="flex items-start justify-between gap-2">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-secondary text-primary" aria-hidden="true">
-                    <Pill className="size-3.5" />
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary" aria-hidden="true">
+                    <Pill className="size-[18px]" />
                   </span>
                   <StockStatusBadge status={soldOut ? "out" : p.status} />
                 </span>
-                <span>
-                  <span className="line-clamp-2 block text-[13px] font-semibold leading-snug">{p.commercialName}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{[p.genericName, p.laboratory].filter(Boolean).join(" · ") || " "}</span>
+                <span className="flex flex-col gap-0.5">
+                  <span className="line-clamp-2 block text-sm font-bold leading-snug">{p.commercialName}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{[p.genericName, p.laboratory].filter(Boolean).join(" · ") || " "}</span>
                   {p.matchedAlias && <span className="block truncate text-[11px] text-secondary-foreground">Coincide con «{p.matchedAlias}»</span>}
                 </span>
                 {formatLocation(p.shelf, p.shelfRow) && (
-                  <span className="flex items-center gap-1 text-[11px] font-medium text-secondary-foreground">
-                    <MapPin className="size-3" aria-hidden="true" />
+                  <span className="flex items-center gap-1 text-xs font-semibold text-secondary-foreground">
+                    <MapPin className="size-3.5" aria-hidden="true" />
                     {formatLocation(p.shelf, p.shelfRow)}
                   </span>
                 )}
-                <span className="mt-auto flex items-baseline justify-between">
-                  <span className="text-sm font-bold tabular-nums">{formatSoles(p.salePrice)}</span>
-                  <span className="text-[11px] text-muted-foreground">Stock {p.sellableStock}</span>
+                <span className="mt-auto flex items-end justify-between gap-2">
+                  <span className="flex flex-col leading-tight">
+                    <span className="text-xl font-extrabold tabular-nums">{formatSoles(p.salePrice)}</span>
+                    <span className="text-xs text-muted-foreground">Stock {p.sellableStock}</span>
+                  </span>
+                  <span className={`flex size-9 items-center justify-center rounded-xl text-primary-foreground transition-colors ${soldOut ? "bg-muted-foreground/50" : "bg-primary group-hover:bg-primary/90"}`} aria-hidden="true">
+                    <Plus className="size-[18px]" />
+                  </span>
                 </span>
               </button>
             </li>

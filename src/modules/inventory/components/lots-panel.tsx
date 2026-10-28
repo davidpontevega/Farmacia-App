@@ -59,7 +59,7 @@ export function LotsPanel({ product }: { product: PickedProduct & Partial<Produc
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border bg-card p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3 card-surface p-5">
         <div className="min-w-0">
           <h2 className="text-xl font-bold tracking-tight">{product.commercialName}</h2>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -92,7 +92,7 @@ export function LotsPanel({ product }: { product: PickedProduct & Partial<Produc
             />
           </div>
 
-          <div className="rounded-2xl border bg-card p-2">
+          <div className="card-surface p-2">
             <Table>
               <TableHeader>
                 <TableRow>

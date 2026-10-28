@@ -1,6 +1,7 @@
 "use client";
 
-import { Download, Copy, Plus } from "lucide-react";
+import { Download, Copy, PackageX, Plus } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -48,10 +49,7 @@ export function ShortagesView() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Faltantes</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Medicamentos que los clientes pidieron y no se pudieron atender. Los más pedidos van primero.</p>
-        </div>
+        <p className="text-sm text-muted-foreground">Medicamentos que los clientes pidieron y no se pudieron atender. Los más pedidos van primero.</p>
         <Can permission="shortages.update">
           <Button onClick={() => setAdding(true)}>
             <Plus className="size-4" aria-hidden="true" />
@@ -108,7 +106,7 @@ export function ShortagesView() {
             {data.length === 0 && (
               <TableRow>
                 <TableCell colSpan={status === "OPEN" ? 5 : 6} className="text-center text-muted-foreground">
-                  {status === "OPEN" ? "No hay faltantes abiertos" : "Nada en esta lista"}
+                  <EmptyState icon={PackageX} title={status === "OPEN" ? "No hay faltantes abiertos" : "Nada en esta lista"} description={status === "OPEN" ? "Lo que los clientes pidan y no haya aparecerá aquí." : undefined} />
                 </TableCell>
               </TableRow>
             )}

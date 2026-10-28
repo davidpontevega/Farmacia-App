@@ -34,6 +34,7 @@ Next.js 16 (App Router) · React 19 · TypeScript estricto · Tailwind 4 · shad
 | 020 | Nombres alternativos de producto (alias) | Hecho |
 | 021 | Diccionario de síntomas ampliado y consultas sin resultado | Hecho |
 | 022 | Control diario de la caja (caja única, turno vencido, cierre por supervisor) | Hecho |
+| 023 | Inicio, encabezado superior, menú agrupado y pulido visual | Hecho |
 
 Los specs viven en [`docs/specs/`](docs/specs). La arquitectura y la estructura de carpetas están en [`docs/SETUP.md`](docs/SETUP.md); las reglas del proyecto, en [`CLAUDE.md`](CLAUDE.md).
 

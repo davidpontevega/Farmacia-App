@@ -48,8 +48,7 @@ export function UsersTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Usuarios</h1>
+      <div className="flex items-center justify-end">
         <Can permission="users.create">
           <Button onClick={() => setInviteOpen(true)}>Invitar usuario</Button>
         </Can>

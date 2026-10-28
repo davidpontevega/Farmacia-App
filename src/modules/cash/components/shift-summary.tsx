@@ -23,7 +23,7 @@ export function ShiftSummaryCard({
   summary: ShiftSummary;
 }) {
   return (
-    <section className="rounded-2xl border bg-card p-5">
+    <section className="card-surface p-5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 className="text-base font-semibold">Turno activo</h2>

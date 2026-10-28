@@ -44,7 +44,7 @@ export function AlertsPanel({ onSeeAll }: { onSeeAll: () => void }) {
     : [];
 
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border bg-card p-5">
+    <section className="flex flex-col gap-3 card-surface p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-semibold">Alertas</h2>
         <button type="button" onClick={onSeeAll} className="min-h-9 text-sm font-semibold text-secondary-foreground hover:underline">

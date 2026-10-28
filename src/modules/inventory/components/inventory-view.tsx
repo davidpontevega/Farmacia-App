@@ -15,10 +15,7 @@ export function InventoryView() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Inventario</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Elige un producto para ver sus lotes, vencimientos y stock.</p>
-      </div>
+      <p className="text-sm text-muted-foreground">Elige un producto para ver sus lotes, vencimientos y stock.</p>
       <div className="flex gap-1.5">
         <Button variant={tab === "lots" ? "default" : "outline"} aria-pressed={tab === "lots"} onClick={() => setTab("lots")}>
           Lotes

@@ -3,7 +3,9 @@ import { isPrescriptionReaderEnabled } from "@/server/ai/prescription-reader";
 import { isProofStorageEnabled } from "@/server/storage/proof-blob";
 import { PosView } from "@/modules/sales/components/pos-view";
 
-export default async function PosPage() {
+// `?receta=1` (botón «Receta» del encabezado) abre el diálogo de receta al cargar.
+export default async function PosPage({ searchParams }: { searchParams: Promise<{ receta?: string }> }) {
   await requirePagePermission("sales.create");
-  return <PosView proofEnabled={isProofStorageEnabled()} readerEnabled={isPrescriptionReaderEnabled()} />;
+  const { receta } = await searchParams;
+  return <PosView proofEnabled={isProofStorageEnabled()} readerEnabled={isPrescriptionReaderEnabled()} openPrescription={receta === "1"} />;
 }

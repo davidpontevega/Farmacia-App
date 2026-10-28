@@ -18,7 +18,7 @@ type Props = {
 
 export function PurchaseHeader({ header, onHeader, documentTotal, onDocumentTotal, suppliers, today, fromDocument }: Props) {
   return (
-    <section className="rounded-2xl border bg-card p-5" aria-labelledby="doc-data">
+    <section className="card-surface p-5" aria-labelledby="doc-data">
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <h2 id="doc-data" className="text-base font-semibold">
           Datos del documento

@@ -25,6 +25,8 @@ export const clerkAppearance: Appearance = {
     // Etiquetas pequeñas en mayúsculas y campos con fondo azul claro.
     formFieldLabel: "uppercase text-[11px] font-semibold tracking-wider text-muted-foreground",
     formFieldInput: "h-11 bg-secondary border-transparent",
+    // Nombre del usuario junto a su foto (menú de usuario del encabezado).
+    userButtonOuterIdentifier: "max-w-40 truncate text-sm font-semibold",
     // Botón sólido (Clerk trae un degradado por defecto).
     formButtonPrimary: "h-11 text-sm font-semibold shadow-none bg-none! bg-primary!",
   },

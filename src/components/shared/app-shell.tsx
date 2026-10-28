@@ -1,15 +1,15 @@
-import { NAV_ITEMS } from "@/lib/nav";
 import { SideNav } from "./shell-nav";
-import { UserMenu } from "./user-menu";
+import { TopBar } from "./top-bar";
 
-/** Menú lateral con lo que el usuario puede ver; igual para cajero y administrador. */
+/** Menú lateral agrupado, encabezado superior y contenido; igual para cajero y administrador (cada uno ve lo que su permiso permite). */
 export function AppShell({ permissions, children }: { permissions: string[]; children: React.ReactNode }) {
-  const links = NAV_ITEMS.filter((i) => permissions.includes(i.permission)).map(({ href, label }) => ({ href, label }));
-  const user = <UserMenu />;
   return (
     <div className="flex min-h-full flex-1 flex-col md:flex-row">
-      <SideNav links={links} user={user} userCard={<UserMenu showName />} />
-      <main className="min-w-0 flex-1 p-4 md:p-8">{children}</main>
+      <SideNav permissions={permissions} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar permissions={permissions} />
+        <main className="min-w-0 flex-1 p-4 md:p-8">{children}</main>
+      </div>
     </div>
   );
 }

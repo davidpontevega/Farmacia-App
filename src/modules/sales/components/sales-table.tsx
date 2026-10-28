@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Receipt } from "lucide-react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -41,7 +43,6 @@ export function SalesTable({ proofEnabled }: { proofEnabled: boolean }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold tracking-tight">Ventas</h1>
 
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
@@ -78,7 +79,7 @@ export function SalesTable({ proofEnabled }: { proofEnabled: boolean }) {
               {data.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center text-muted-foreground">
-                    Sin ventas en este rango
+                    <EmptyState icon={Receipt} title="Sin ventas en este rango" description="Prueba con otras fechas." />
                   </TableCell>
                 </TableRow>
               )}

@@ -22,7 +22,6 @@ export function ShiftView({ proofEnabled }: { proofEnabled: boolean }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold tracking-tight">Control de caja</h1>
       {data.shift === null ? (
         local.isLoading ? <Skeleton className="h-40 w-full max-w-sm" /> : local.data ? <LocalShiftCard shift={local.data} /> : <OpenShiftCard />
       ) : (

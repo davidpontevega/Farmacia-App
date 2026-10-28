@@ -32,7 +32,7 @@ const SORTS: [SalesSort, string][] = [
   ["profit", "Utilidad"],
 ];
 
-const CARD = "rounded-2xl border bg-card p-5";
+const CARD = "card-surface p-5";
 
 /** Variación contra el período anterior; sin base de comparación no se muestra. */
 function Delta({ pct, unit = "%" }: { pct: number | null; unit?: string }) {
@@ -49,7 +49,7 @@ function Delta({ pct, unit = "%" }: { pct: number | null; unit?: string }) {
 
 function Stat({ label, value, delta, note }: { label: string; value: string; delta?: React.ReactNode; note?: string }) {
   return (
-    <div className="flex flex-col gap-1.5 rounded-2xl border bg-card p-5">
+    <div className="flex flex-col gap-1.5 card-surface p-5">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="text-2xl font-bold tracking-tight tabular-nums">{value}</p>
       <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

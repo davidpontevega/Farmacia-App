@@ -76,6 +76,18 @@ export async function salesByDay({ from, to }: Range) {
   return rows.map((r) => ({ date: r.day, count: n(r.count), gross: n(r.gross) }));
 }
 
+/** Ventas completadas de un día de Lima, por hora de Lima (spec 023, ventas por hora del Inicio). */
+export async function salesByHour(day: string) {
+  const rows = asRows<{ hour: unknown; total: unknown }>(
+    await db.execute(sql`
+      select extract(hour from created_at at time zone 'America/Lima')::int as hour, sum(total) as total
+      from sales
+      where status = 'COMPLETED' and ${limaDay("created_at")} = ${day}::date
+      group by 1`),
+  );
+  return rows.map((r) => ({ hour: n(r.hour), total: n(r.total) }));
+}
+
 export async function salesByCashier({ from, to }: Range) {
   const rows = asRows<{ user_id: string; name: string; count: unknown; total: unknown }>(
     await db.execute(sql`

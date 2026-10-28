@@ -21,6 +21,13 @@ export function formatDate(iso: string) {
   return `${d}/${m}/${y}`;
 }
 
+/** «miércoles 28 de octubre» (con la primera en mayúscula) para un día `YYYY-MM-DD`. */
+export function formatLongDate(iso: string) {
+  const text = new Date(`${iso}T12:00:00Z`).toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+  const plain = text.replace(",", "");
+  return plain.charAt(0).toUpperCase() + plain.slice(1);
+}
+
 export function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString("es-PE", { timeZone: TIME_ZONE });
 }

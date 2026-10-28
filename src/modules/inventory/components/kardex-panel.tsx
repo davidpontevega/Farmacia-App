@@ -52,7 +52,7 @@ export function KardexPanel() {
       <ProductList selectedId={product?.id ?? null} onSelect={setProduct} allLabel="Todos los productos" onClear={() => setProduct(null)} />
 
       <section className="flex min-w-0 flex-col gap-4">
-        <div className="flex flex-wrap items-end justify-between gap-4 rounded-2xl border bg-card p-5">
+        <div className="flex flex-wrap items-end justify-between gap-4 card-surface p-5">
           <div className="min-w-0">
             <h2 className="text-xl font-bold tracking-tight">{product ? product.commercialName : "Todos los productos"}</h2>
             <p className="mt-1 text-sm text-muted-foreground">Entradas, salidas, devoluciones y ajustes de stock.</p>
@@ -83,7 +83,7 @@ export function KardexPanel() {
               <Tile icon={ListOrdered} label="Movimientos" value={String(data.length)} tone="bg-secondary text-secondary-foreground" />
             </div>
 
-            <div className="rounded-2xl border bg-card p-2">
+            <div className="card-surface p-2">
               <Table>
                 <TableHeader>
                   <TableRow>

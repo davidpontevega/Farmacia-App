@@ -1,6 +1,8 @@
 "use client";
 
+import { Undo2 } from "lucide-react";
 import { useState } from "react";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +28,6 @@ export function ReturnsTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold tracking-tight">Devoluciones</h1>
 
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
@@ -60,7 +61,7 @@ export function ReturnsTable() {
               {data.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    Sin devoluciones en este rango
+                    <EmptyState icon={Undo2} title="Sin devoluciones en este rango" description="Prueba con otras fechas." />
                   </TableCell>
                 </TableRow>
               )}

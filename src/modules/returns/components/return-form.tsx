@@ -59,7 +59,7 @@ export function ReturnForm({ data, onDone }: { data: LookupResponse; onDone: () 
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-2xl border bg-card p-5 text-sm">
+      <div className="card-surface p-5 text-sm">
         <p className="font-medium">
           {sale.ticketNumber} · {formatDateTime(sale.createdAt)} · Total {formatSoles(sale.total)}
         </p>
@@ -149,7 +149,7 @@ export function ReturnForm({ data, onDone }: { data: LookupResponse; onDone: () 
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3 card-surface p-5">
             <div>
               <p className="text-sm text-muted-foreground">Total a devolver (en efectivo)</p>
               <p className="text-2xl font-bold">{formatSoles(refund)}</p>
