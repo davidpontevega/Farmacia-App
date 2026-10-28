@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from "@clerk/localizations";
 import { Toaster } from "sonner";
 import { BRAND } from "@/lib/brand";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
@@ -22,9 +23,23 @@ export const metadata: Metadata = {
   description: `Punto de venta · ${BRAND.name}`,
 };
 
+// El paquete en español no trae el título de la pantalla de acceso («Continue to …» salía en inglés).
+const localization = {
+  ...esES,
+  signIn: {
+    ...esES.signIn,
+    start: {
+      ...esES.signIn?.start,
+      title: "Bienvenido",
+      subtitle: "Ingresa tu correo para continuar",
+      titleCombined: "Bienvenido",
+    },
+  },
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider localization={esES}>
+    <ClerkProvider localization={localization} appearance={clerkAppearance}>
       <html
         lang="es"
         className={`${inter.variable} ${geistMono.variable} h-full antialiased`}
