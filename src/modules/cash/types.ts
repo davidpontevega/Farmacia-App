@@ -25,10 +25,25 @@ export type CashMovementRow = {
 export type ActiveShiftResponse =
   | { shift: null }
   | {
-      shift: { id: string; openingAmount: number; openedAt: string };
+      shift: { id: string; openingAmount: number; openedAt: string; /** Abierto un día anterior: solo se puede cerrar. */ stale: boolean };
       summary: ShiftSummary;
       movements: CashMovementRow[];
     };
+
+/** El turno abierto de todo el local (hay una sola caja). Los importes solo llegan a un supervisor. */
+export type LocalOpenShift = {
+  id: string;
+  ownerName: string;
+  openedAt: string;
+  stale: boolean;
+  mine: boolean;
+  openingAmount?: number;
+  summary?: ShiftSummary;
+};
+
+export type ForceCloseResult =
+  | { mode: "NO_COUNT"; expectedCash: number; expectedYape: number }
+  | { mode: "COUNTED"; expectedCash: number; expectedYape: number; differenceCash: number; differenceYape: number; difference: number };
 
 export type CloseShiftResult = {
   expectedCash: number;

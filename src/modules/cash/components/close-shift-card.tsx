@@ -23,7 +23,7 @@ import type { ShiftSummary } from "../types";
 
 const centsOrNull = (v: string) => (isValidSoles(v) ? toCents(v) : null);
 
-function Difference({ label, cents }: { label: string; cents: number | null }) {
+export function Difference({ label, cents }: { label: string; cents: number | null }) {
   if (cents === null) return null;
   const tone = cents === 0 ? "text-success" : "text-destructive";
   return (

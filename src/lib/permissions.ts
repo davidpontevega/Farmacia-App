@@ -4,7 +4,7 @@ export const PERMISSION_ACTIONS = {
   lots: ["read", "create", "update"],
   inventory: ["read", "adjust", "kardex"],
   sales: ["create", "read", "void"],
-  cash: ["open", "close", "read", "withdraw", "exchange"],
+  cash: ["open", "close", "read", "withdraw", "exchange", "supervise"],
   returns: ["create", "read"],
   purchases: ["create", "read"],
   users: ["read", "create", "update", "deactivate"],

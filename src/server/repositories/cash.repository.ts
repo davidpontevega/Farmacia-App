@@ -1,7 +1,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/server/db";
 import type { Executor } from "@/server/db/types";
-import { cashMovements, cashShifts, sales } from "@/server/db/schema";
+import { cashMovements, cashShifts, sales, users } from "@/server/db/schema";
 
 export async function findOpenShift(userId: string, ex: Executor = db) {
   const [row] = await ex
@@ -86,4 +86,14 @@ export async function shiftTotals(shiftId: string, ex: Executor = db) {
     exchanges: total("YAPE_TO_CASH_EXCHANGE"),
     refunds: total("CASH_REFUND"),
   };
+}
+
+/** El turno abierto de todo el local (una sola caja), con el nombre de su dueño. */
+export async function findLocalOpenShift(ex: Executor = db) {
+  const [row] = await ex
+    .select({ id: cashShifts.id, userId: cashShifts.userId, ownerName: users.name, openedAt: cashShifts.openedAt, openingAmount: cashShifts.openingAmount })
+    .from(cashShifts)
+    .innerJoin(users, eq(users.id, cashShifts.userId))
+    .where(eq(cashShifts.status, "OPEN"));
+  return row;
 }

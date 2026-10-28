@@ -4,9 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { apiErrorMessage } from "@/lib/axios";
 import { formatSoles, formatSolesSigned } from "@/lib/money";
-import { addMovement, closeShift, getActiveShift, openShift } from "../services/cash.service";
+import { addMovement, closeShift, forceCloseShift, getActiveShift, getLocalOpenShift, openShift } from "../services/cash.service";
 
 const KEY = ["cash-shift"];
+const LOCAL_KEY = [...KEY, "local"];
 
 export const useActiveShift = () =>
   useQuery({ queryKey: KEY, queryFn: getActiveShift });
@@ -34,4 +35,14 @@ export const useCloseShift = () =>
     closeShift,
     (r) =>
       `Turno cerrado. Efectivo: ${formatSolesSigned(r.differenceCash)} · Yape: ${formatSolesSigned(r.differenceYape)} (esperado ${formatSoles(r.expectedCash)} / ${formatSoles(r.expectedYape)})`,
+  );
+
+/** Quién tiene la caja ahora (solo se consulta cuando yo no tengo turno). */
+export const useLocalOpenShift = (enabled: boolean) => useQuery({ queryKey: LOCAL_KEY, queryFn: getLocalOpenShift, enabled });
+
+export const useForceCloseShift = () =>
+  useCashMutation(forceCloseShift, (r) =>
+    r.mode === "NO_COUNT"
+      ? "Turno cerrado sin cuadre"
+      : `Turno cerrado. Efectivo: ${formatSolesSigned(r.differenceCash)} · Yape: ${formatSolesSigned(r.differenceYape)}`,
   );

@@ -1,6 +1,8 @@
 import {
+  check,
   integer,
   pgTable,
+  text,
   timestamp,
   uniqueIndex,
   uuid,
@@ -28,11 +30,19 @@ export const cashShifts = pgTable(
       .notNull()
       .defaultNow(),
     closedAt: timestamp("closed_at", { withTimezone: true }),
+    /** Quién lo cerró (el dueño o un supervisor) y cómo: con su conteo, con conteo del supervisor o «sin cuadre» (spec 022). */
+    closedBy: uuid("closed_by").references(() => users.id),
+    closeMode: text("close_mode").notNull().default("NORMAL"),
     status: shiftStatusEnum("status").notNull().default("OPEN"),
   },
   (t) => [
     uniqueIndex("cash_shifts_one_open_per_user")
       .on(t.userId)
       .where(sql`${t.status} = 'OPEN'`),
+    // Una sola caja física: un solo turno abierto en todo el local (spec 022).
+    uniqueIndex("cash_shifts_one_open")
+      .on(sql`(1)`)
+      .where(sql`${t.status} = 'OPEN'`),
+    check("cash_shifts_close_mode", sql`${t.closeMode} in ('NORMAL', 'FORCED_COUNTED', 'FORCED_NO_COUNT')`),
   ],
 );

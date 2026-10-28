@@ -12,6 +12,12 @@ export const closeShiftSchema = z.object({
   countedYape: cents,
 });
 
+/** Cierre por un supervisor: con el conteo que él hace, o «sin cuadre» cuando nadie puede contar. */
+export const forceCloseSchema = z.discriminatedUnion("mode", [
+  z.object({ mode: z.literal("COUNTED"), countedCash: cents, countedYape: cents }),
+  z.object({ mode: z.literal("NO_COUNT") }),
+]);
+
 export const movementSchema = z.object({
   type: z.enum(["CASH_WITHDRAWAL", "YAPE_TO_CASH_EXCHANGE"]),
   amount: z.number().int().min(1).max(MAX_CENTS),
@@ -36,6 +42,7 @@ export const movementFormSchema = z.object({
 
 export type OpenShiftInput = z.infer<typeof openShiftSchema>;
 export type CloseShiftInput = z.infer<typeof closeShiftSchema>;
+export type ForceCloseInput = z.infer<typeof forceCloseSchema>;
 export type MovementInput = z.infer<typeof movementSchema>;
 export type OpenShiftFormValues = z.infer<typeof openShiftFormSchema>;
 export type CloseShiftFormValues = z.infer<typeof closeShiftFormSchema>;

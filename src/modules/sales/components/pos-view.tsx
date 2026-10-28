@@ -39,6 +39,17 @@ export function PosView({ proofEnabled, readerEnabled }: { proofEnabled: boolean
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
+      {data.shift.stale && (
+        <div role="alert" className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-destructive lg:col-span-2">
+          <p className="font-semibold">Tu turno de caja es de un día anterior</p>
+          <p className="mt-1 text-sm">
+            No se puede vender hasta cerrarlo.{" "}
+            <Link href="/caja" className="font-medium underline">
+              Ir a Caja
+            </Link>
+          </p>
+        </div>
+      )}
       <ProductCatalog onPrescription={() => setPrescribing(true)} />
 
       <aside aria-label="Venta actual" className="flex flex-col rounded-2xl border bg-card lg:sticky lg:top-4">
@@ -62,7 +73,7 @@ export function PosView({ proofEnabled, readerEnabled }: { proofEnabled: boolean
               <span className="text-2xl font-bold tracking-tight tabular-nums">{formatSoles(total)}</span>
             </div>
           </div>
-          <Button variant="success" size="lg" className="h-12 text-base font-bold" disabled={items.length === 0} onClick={() => setPaying(true)}>
+          <Button variant="success" size="lg" className="h-12 text-base font-bold" disabled={items.length === 0 || data.shift.stale} onClick={() => setPaying(true)}>
             Cobrar {formatSoles(total)}
           </Button>
           <p className="text-[11px] text-muted-foreground">Turno abierto · apertura {formatSoles(data.shift.openingAmount)}</p>
