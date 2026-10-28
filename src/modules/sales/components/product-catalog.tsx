@@ -1,16 +1,19 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ClipboardList, MapPin, Pill, Search } from "lucide-react";
+import { ClipboardList, MapPin, PackageX, Pill, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
 import { formatLocation } from "@/lib/location";
+import { SHORTAGE_NAME_MAX } from "@/lib/shortages";
 import { formatSoles } from "@/lib/money";
 import { useDebounce } from "@/lib/use-debounce";
+import { Can } from "@/modules/auth/components/can";
 import { StockStatusBadge } from "@/modules/products/components/stock-status-badge";
 import { useProducts } from "@/modules/products/hooks/use-products";
+import { ShortageDialog } from "@/modules/shortages/components/shortage-dialog";
 import { useCartStore } from "../store/cart-store";
 
 const ALL = "Todos";
@@ -19,9 +22,13 @@ const ALL = "Todos";
 export function ProductCatalog({ onPrescription }: { onPrescription: () => void }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState(ALL);
+  const [noting, setNoting] = useState(false);
   const add = useCartStore((s) => s.add);
-  const q = useDebounce(search.trim());
+  const text = search.trim();
+  const q = useDebounce(text);
   const { data, isLoading, isFetching, error } = useProducts({ q, page: 1, includeInactive: false });
+  // Entre lo que se teclea y lo que se consulta hay un retardo: ahí `data` es de la búsqueda anterior.
+  const searching = isFetching || text !== q;
 
   const categories = useMemo(
     () => [ALL, ...Array.from(new Set((data?.items ?? []).map((p) => p.category).filter((c): c is string => !!c))).sort()],
@@ -76,7 +83,17 @@ export function ProductCatalog({ onPrescription }: { onPrescription: () => void 
         </p>
       )}
       {data && items.length === 0 && (
-        <p className="py-10 text-center text-sm text-muted-foreground">{isFetching ? "Buscando…" : "No se encontraron productos"}</p>
+        <div className="flex flex-col items-center gap-3 py-10 text-center">
+          <p className="text-sm text-muted-foreground">{searching ? "Buscando…" : "No se encontraron productos"}</p>
+          {!searching && text.length >= 2 && (
+            <Can permission="shortages.create">
+              <Button type="button" variant="outline" onClick={() => setNoting(true)}>
+                <PackageX className="size-4" aria-hidden="true" />
+                No lo tengo: anotar «{text}» como faltante
+              </Button>
+            </Can>
+          )}
+        </div>
       )}
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-2">
         {items.map((p) => {
@@ -114,6 +131,17 @@ export function ProductCatalog({ onPrescription }: { onPrescription: () => void 
           );
         })}
       </ul>
+      {items.length > 0 && !searching && text.length >= 2 && (
+        <Can permission="shortages.create">
+          <p className="text-xs text-muted-foreground">
+            ¿No es lo que buscas?{" "}
+            <button type="button" className="min-h-8 font-medium text-primary underline-offset-2 hover:underline" onClick={() => setNoting(true)}>
+              Anotar «{text}» como faltante
+            </button>
+          </p>
+        </Can>
+      )}
+      {noting && <ShortageDialog source="SEARCH" initialName={text.slice(0, SHORTAGE_NAME_MAX)} onClose={() => setNoting(false)} />}
     </div>
   );
 }

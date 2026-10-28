@@ -12,7 +12,7 @@ const name = z
 export const shortageItemSchema = z.object({
   name,
   quantity: z.number().int().min(1).max(9999),
-  source: z.enum(["PRESCRIPTION", "MANUAL"]),
+  source: z.enum(["PRESCRIPTION", "MANUAL", "SEARCH"]),
   productId: z.string().uuid().optional(),
 });
 

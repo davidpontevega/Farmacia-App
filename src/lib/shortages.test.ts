@@ -19,6 +19,7 @@ test("shortageKey: tildes, mayúsculas y espacios", () => {
 
 test("canAddSource: la anotación manual exige shortages.update", () => {
   assert.ok(canAddSource("PRESCRIPTION", ["shortages.create"]));
+  assert.ok(canAddSource("SEARCH", ["shortages.create"]));
   assert.ok(!canAddSource("MANUAL", ["shortages.create"]));
   assert.ok(canAddSource("MANUAL", ["shortages.create", "shortages.update"]));
 });

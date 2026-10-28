@@ -6,15 +6,15 @@ export const SHORTAGE_NAME_MAX = 120;
 export const SHORTAGE_BATCH_MAX = 30;
 export const SHORTAGE_DEDUPE_MINUTES = 10;
 
-export type ShortageSource = "PRESCRIPTION" | "MANUAL";
+export type ShortageSource = "PRESCRIPTION" | "MANUAL" | "SEARCH";
 export type ShortageStatus = "OPEN" | "ORDERED" | "DISMISSED";
 
 /** Clave para agrupar: sin tildes ni mayúsculas y con espacios simples. */
 export const shortageKey = (name: string) => normalize(name);
 
-/** Anotar a mano exige `shortages.update`; las que vienen de una receta basta con `shortages.create`. */
+/** Anotar a mano exige `shortages.update`; desde una receta o desde la búsqueda de caja basta con `shortages.create`. */
 export const canAddSource = (source: ShortageSource, permissions: readonly string[]) =>
-  source === "PRESCRIPTION" || permissions.includes("shortages.update");
+  source !== "MANUAL" || permissions.includes("shortages.update");
 
 /** Desde cuándo un mismo ítem del mismo usuario se considera repetido. */
 export const dedupeSince = (now: Date) => new Date(now.getTime() - SHORTAGE_DEDUPE_MINUTES * 60_000);

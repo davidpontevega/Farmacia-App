@@ -1,0 +1,1 @@
+ALTER TYPE "public"."shortage_source" ADD VALUE 'SEARCH';
