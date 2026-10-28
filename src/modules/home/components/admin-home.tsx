@@ -16,7 +16,7 @@ import { useActiveShift, useLocalOpenShift } from "@/modules/cash/hooks/use-cash
 import { useHomeSummary } from "../hooks/use-home";
 import type { DayStats, HomeSummary } from "../types";
 
-const card = "card-surface p-5";
+const card = "card-surface p-4";
 
 function Delta({ pct }: { pct: number | null }) {
   if (pct === null) return <Badge variant="ghost">sin datos de ayer</Badge>;
@@ -27,8 +27,8 @@ function Delta({ pct }: { pct: number | null }) {
 function Kpi({ label, value, chip, hint }: { label: string; value: string; chip: React.ReactNode; hint: string }) {
   return (
     <div className={cn(card, "flex flex-col gap-1.5")}>
-      <span className="text-sm font-semibold text-muted-foreground">{label}</span>
-      <span className="text-3xl font-extrabold tracking-tight tabular-nums">{value}</span>
+      <span className="text-[13px] font-semibold text-muted-foreground">{label}</span>
+      <span className="text-2xl font-extrabold tracking-tight tabular-nums">{value}</span>
       <span className="flex items-center gap-2 text-xs text-muted-foreground">
         {chip}
         {hint}

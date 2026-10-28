@@ -11,12 +11,14 @@ export type NavItem = {
   permission?: PermissionCode;
   /** Contador que se muestra junto al ítem (spec 023). */
   counter?: "shortages" | "alerts";
+  /** `false`: no aparece en la lista del menú (sí en el buscador «Ir a…»). Inicio se alcanza con el logo. */
+  menu?: false;
 };
 
 export const NAV_SECTIONS: NavSection[] = ["Operación", "Inventario", "Análisis", "Administración"];
 
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/inicio", label: "Inicio", section: "Operación" },
+  { href: "/inicio", label: "Inicio", section: "Operación", menu: false },
   { href: "/pos", label: "Punto de venta", section: "Operación", permission: "sales.create" },
   { href: "/caja", label: "Caja", section: "Operación", permission: "cash.read" },
   { href: "/consulta", label: "Consulta", section: "Operación", permission: "products.read" },
@@ -35,9 +37,9 @@ export const ADMIN_NAV_ITEMS = NAV_ITEMS.filter((i) => i.href.startsWith("/admin
 
 export const canSee = (item: NavItem, permissions: readonly string[]) => !item.permission || permissions.includes(item.permission);
 
-/** Los ítems que el usuario puede ver, agrupados por sección; una sección sin ítems no aparece. */
+/** Los ítems del menú que el usuario puede ver, agrupados por sección; una sección sin ítems no aparece. */
 export function groupNav<T extends NavItem>(items: readonly T[], permissions: readonly string[]): { title: NavSection; items: T[] }[] {
-  const visible = items.filter((i) => canSee(i, permissions));
+  const visible = items.filter((i) => i.menu !== false && canSee(i, permissions));
   return NAV_SECTIONS.map((title) => ({ title, items: visible.filter((i) => i.section === title) })).filter((s) => s.items.length > 0);
 }
 

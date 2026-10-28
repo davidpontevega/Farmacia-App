@@ -38,15 +38,15 @@ test("counterPlan: cada usuario ve solo los contadores de lo que puede leer", ()
   assert.deepEqual(counterPlan(["reports.read", "shortages.read"]), { shortages: true, alerts: true });
 });
 
-test("groupNav: solo lo permitido, por sección, sin secciones vacías; Inicio para todos", () => {
+test("groupNav: solo lo permitido, por sección, sin secciones vacías; Inicio no va en el menú (es el logo)", () => {
   const cashier = groupNav(NAV_ITEMS, ["sales.create", "cash.read", "products.read", "returns.create"]);
   assert.deepEqual(cashier.map((s) => s.title), ["Operación", "Inventario"]);
-  assert.deepEqual(cashier[0].items.map((i) => i.label), ["Inicio", "Punto de venta", "Caja", "Consulta", "Devoluciones"]);
+  assert.deepEqual(cashier[0].items.map((i) => i.label), ["Punto de venta", "Caja", "Consulta", "Devoluciones"]);
   assert.deepEqual(cashier[1].items.map((i) => i.label), ["Productos"]);
-  assert.deepEqual(groupNav(NAV_ITEMS, []).map((s) => s.title), ["Operación"]);
+  assert.deepEqual(groupNav(NAV_ITEMS, []), []);
   const admin = groupNav(NAV_ITEMS, NAV_ITEMS.flatMap((i) => (i.permission ? [i.permission] : [])));
   assert.deepEqual(admin.map((s) => s.title), ["Operación", "Inventario", "Análisis", "Administración"]);
-  assert.equal(admin.flatMap((s) => s.items).length, NAV_ITEMS.length);
+  assert.equal(admin.flatMap((s) => s.items).length, NAV_ITEMS.length - 1); // todo menos Inicio
 });
 
 test("pageMeta: título por ruta, también en subrutas, y respaldo", () => {
@@ -65,4 +65,8 @@ test("filterNav: sin tildes ni mayúsculas, todas las palabras, y sin texto devu
   assert.deepEqual(filterNav("historial dev", NAV_ITEMS).map((i) => i.label), ["Historial de devoluciones"]);
   assert.deepEqual(filterNav("analisis", NAV_ITEMS).map((i) => i.label), ["Ventas", "Reportes", "Historial de devoluciones"]); // por sección
   assert.deepEqual(filterNav("zzz", NAV_ITEMS), []);
+});
+
+test("filterNav: Inicio, que no está en el menú, sí se encuentra en el buscador", () => {
+  assert.deepEqual(filterNav("inicio", NAV_ITEMS).map((i) => i.href), ["/inicio"]);
 });

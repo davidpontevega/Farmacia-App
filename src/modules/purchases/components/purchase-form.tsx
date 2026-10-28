@@ -433,13 +433,13 @@ export function PurchaseForm() {
           )}
           <div className={`flex min-w-0 flex-col gap-3 ${ocr ? "" : "xl:col-span-2"}`}>
             <div className="flex flex-wrap items-end gap-2">
-              <Button type="button" variant="outline" className="h-10" onClick={() => setPasteOpen(true)}>
+              <Button type="button" variant="outline" className="h-10 border-primary text-primary hover:bg-secondary hover:text-primary" onClick={() => setPasteOpen(true)}>
                 Pegar filas
               </Button>
-              <Button type="button" variant="outline" className="h-10" onClick={addRow}>
+              <Button type="button" variant="outline" className="h-10 border-primary text-primary hover:bg-secondary hover:text-primary" onClick={addRow}>
                 + Agregar fila
               </Button>
-              <Button type="button" variant="outline" className="h-10" onClick={createUnmatchedAsNew}>
+              <Button type="button" variant="outline" className="h-10 border-warning-ring bg-warning-soft text-warning hover:bg-warning-soft/70 hover:text-warning" onClick={createUnmatchedAsNew}>
                 Crear como nuevos los que no tienen producto
               </Button>
               <div className="ml-auto flex items-end gap-2">
@@ -449,7 +449,7 @@ export function PurchaseForm() {
                   </Label>
                   <Input id="margin" className="h-10 w-24" inputMode="decimal" placeholder="Ej: 30" value={margin} onChange={(e) => setMargin(e.target.value)} />
                 </div>
-                <Button type="button" variant="outline" className="h-10" disabled={!marginOk} onClick={applyMargin}>
+                <Button type="button" variant="outline" className="h-10 border-success bg-success-soft text-success hover:bg-success-soft/70 hover:text-success" disabled={!marginOk} onClick={applyMargin}>
                   Sugerir precios
                 </Button>
               </div>

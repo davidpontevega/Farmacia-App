@@ -127,7 +127,7 @@ export function OcrQuotePanel({ onRead, again }: Props) {
           </Button>
         </div>
       ) : (
-        <Button type="button" variant="outline" className="h-11 gap-2 px-4 font-semibold" onClick={() => input.current?.click()}>
+        <Button type="button" className="h-11 gap-2 px-4 font-semibold" onClick={() => input.current?.click()}>
           <Upload aria-hidden="true" />
           {again ? "Subir otra" : "Leer cotización (imagen o PDF)"}
         </Button>

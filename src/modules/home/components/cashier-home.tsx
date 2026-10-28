@@ -14,7 +14,7 @@ import { useActiveShift, useLocalOpenShift } from "@/modules/cash/hooks/use-cash
 import { useShiftSales } from "@/modules/sales/hooks/use-sales";
 import { PAYMENT_LABEL } from "@/modules/sales/types";
 
-const card = "card-surface p-5";
+const card = "card-surface p-4";
 
 function Access({ href, icon: Icon, title, hint, tone }: { href: string; icon: typeof ShoppingCart; title: string; hint: string; tone: "success" | "primary" | "plain" }) {
   const styles = {
@@ -23,12 +23,12 @@ function Access({ href, icon: Icon, title, hint, tone }: { href: string; icon: t
     plain: "border bg-card text-foreground hover:bg-muted/60",
   }[tone];
   return (
-    <Link href={href} className={cn("flex items-center gap-4 rounded-2xl p-5 shadow-sm transition-colors", styles)}>
-      <span className={cn("flex size-13 shrink-0 items-center justify-center rounded-2xl", tone === "plain" ? "bg-secondary text-primary" : "bg-white/20")} aria-hidden="true">
-        <Icon className="size-7" />
+    <Link href={href} className={cn("flex items-center gap-3 rounded-2xl p-4 shadow-sm transition-colors", styles)}>
+      <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-xl", tone === "plain" ? "bg-secondary text-primary" : "bg-white/20")} aria-hidden="true">
+        <Icon className="size-6" />
       </span>
       <span className="flex flex-col leading-tight">
-        <span className="text-xl font-extrabold">{title}</span>
+        <span className="text-base font-extrabold">{title}</span>
         <span className={cn("text-sm", tone === "plain" ? "text-muted-foreground" : "opacity-90")}>{hint}</span>
       </span>
     </Link>
@@ -40,7 +40,7 @@ function Tile({ label, value, tone }: { label: string; value: string; tone: "pla
   return (
     <div className={cn("rounded-xl px-3.5 py-3", box)}>
       <div className="text-xs font-semibold">{label}</div>
-      <div className="mt-0.5 text-2xl font-extrabold tabular-nums">{value}</div>
+      <div className="mt-0.5 text-xl font-extrabold tabular-nums">{value}</div>
     </div>
   );
 }

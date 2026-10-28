@@ -106,17 +106,17 @@
   --brand-700: #103a78;
   --brand-800: #0f2a5c;
   --brand-900: #0a1d42;
-  /* Menú azul oscuro (spec 023) */
-  --sidebar: #0f2a5c;
-  --sidebar-foreground: #d6e2f7;
+  /* Menú claro (spec 023) */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #334155;
   --sidebar-primary: #1b5fc1;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1c3a75;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1c3a75;
-  --sidebar-ring: #8fb4ee;
-  --sidebar-muted: #a9bde0;
-  --sidebar-card: #16336c;
+  --sidebar-accent: #e8f0fc;
+  --sidebar-accent-foreground: #154a98;
+  --sidebar-border: #e3e8f0;
+  --sidebar-ring: #1b5fc1;
+  --sidebar-muted: #5b6b80;
+  --sidebar-card: #f3f5f9;
 }
 
 .dark {
@@ -161,6 +161,10 @@
 }
 
 @layer base {
+  /* Tamaño base de 15 px (antes 16): letras y espacios proporcionalmente menores en todo el sistema. */
+  html {
+    font-size: 15px;
+  }
   * {
     @apply border-border outline-ring/50;
   }

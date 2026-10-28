@@ -126,7 +126,7 @@ export function ProductCatalog({ onPrescription }: { onPrescription: () => void 
                 )}
                 <span className="mt-auto flex items-end justify-between gap-2">
                   <span className="flex flex-col leading-tight">
-                    <span className="text-xl font-extrabold tabular-nums">{formatSoles(p.salePrice)}</span>
+                    <span className="text-lg font-extrabold tabular-nums">{formatSoles(p.salePrice)}</span>
                     <span className="text-xs text-muted-foreground">Stock {p.sellableStock}</span>
                   </span>
                   <span className={`flex size-9 items-center justify-center rounded-xl text-primary-foreground transition-colors ${soldOut ? "bg-muted-foreground/50" : "bg-primary group-hover:bg-primary/90"}`} aria-hidden="true">

@@ -8,7 +8,7 @@ export function AppShell({ permissions, children }: { permissions: string[]; chi
       <SideNav permissions={permissions} />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar permissions={permissions} />
-        <main className="min-w-0 flex-1 p-4 md:p-8">{children}</main>
+        <main className="min-w-0 flex-1 p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

@@ -175,6 +175,7 @@ export function PurchaseProductCell({ row, rowLabel, catalog, onChange }: Props)
         type="button"
         size="xs"
         variant="outline"
+        className="border-primary text-primary hover:bg-secondary hover:text-primary"
         aria-label={`Crear como producto nuevo, ${rowLabel}`}
         onClick={() => {
           onChange({ isNew: true, description: row.description || term.trim() });

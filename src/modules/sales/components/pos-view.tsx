@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { OPEN_PRESCRIPTION_EVENT } from "@/components/shared/top-bar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
@@ -26,17 +25,10 @@ export function PosView({ proofEnabled, readerEnabled, openPrescription }: { pro
   const stale = data?.shift?.stale ?? false;
   const hasItems = items.length > 0;
 
-  // Viene de «Receta» en el encabezado: el parámetro ya cumplió su función, se quita de la dirección.
+  // Viene de «Receta» en el Inicio del cajero (`?receta=1`): el parámetro ya cumplió su función, se quita de la dirección.
   useEffect(() => {
     if (openPrescription) router.replace("/pos", { scroll: false });
   }, [openPrescription, router]);
-
-  // «Receta» del encabezado cuando ya estás aquí.
-  useEffect(() => {
-    const open = () => setPrescribing(true);
-    window.addEventListener(OPEN_PRESCRIPTION_EVENT, open);
-    return () => window.removeEventListener(OPEN_PRESCRIPTION_EVENT, open);
-  }, []);
 
   // Atajos: F2 cobra (con productos y el turno al día), F4 abre la receta. No actúan con un diálogo abierto.
   useEffect(() => {
@@ -103,10 +95,10 @@ export function PosView({ proofEnabled, readerEnabled, openPrescription }: { pro
             </div>
             <div className="mt-1 flex items-baseline justify-between border-t pt-2 text-foreground">
               <span className="text-sm font-semibold">Total</span>
-              <span className="text-4xl font-extrabold tracking-tight tabular-nums">{formatSoles(total)}</span>
+              <span className="text-3xl font-extrabold tracking-tight tabular-nums">{formatSoles(total)}</span>
             </div>
           </div>
-          <Button variant="success" size="lg" className="h-14 gap-3 text-lg font-extrabold" disabled={!hasItems || stale} onClick={() => setPaying(true)}>
+          <Button variant="success" size="lg" className="h-12 gap-3 text-base font-extrabold" disabled={!hasItems || stale} onClick={() => setPaying(true)}>
             Cobrar {formatSoles(total)}
             <kbd className="rounded-md bg-white/20 px-2 py-0.5 text-xs font-bold">F2</kbd>
           </Button>
