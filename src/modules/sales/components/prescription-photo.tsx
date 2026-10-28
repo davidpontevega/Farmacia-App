@@ -1,9 +1,9 @@
 "use client";
 
 import axios from "axios";
+import { Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { apiErrorMessage } from "@/lib/axios";
 import { cropAndShrink } from "@/lib/image";
 import { cropError, type Crop } from "@/lib/prescription-read";
@@ -25,6 +25,7 @@ export function PrescriptionPhoto({ onRead, onCancel }: { onRead: (lines: string
   const [sending, setSending] = useState(false);
   const start = useRef<{ x: number; y: number } | null>(null);
   const frame = useRef<HTMLDivElement>(null);
+  const picker = useRef<HTMLInputElement>(null);
   const abort = useRef<AbortController | null>(null);
 
   // La URL temporal de la foto se libera al cambiar de foto y al cerrar.
@@ -75,8 +76,23 @@ export function PrescriptionPhoto({ onRead, onCancel }: { onRead: (lines: string
 
       {!photo ? (
         <div className="flex flex-col items-start gap-2">
-          <Label htmlFor="rx-photo">Foto de la receta</Label>
-          <input id="rx-photo" type="file" accept="image/jpeg,image/png,image/webp" autoFocus onChange={(e) => choose(e.target.files?.[0] ?? null)} className="text-sm" />
+          <input
+            ref={picker}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            aria-hidden="true"
+            tabIndex={-1}
+            className="sr-only"
+            onChange={(e) => {
+              choose(e.target.files?.[0] ?? null);
+              e.target.value = "";
+            }}
+          />
+          <Button type="button" size="lg" autoFocus onClick={() => picker.current?.click()}>
+            <Camera className="size-4" aria-hidden="true" />
+            Elegir foto de la receta
+          </Button>
+          <p className="text-xs text-muted-foreground">Desde el celular abre la cámara o la galería. JPEG, PNG o WebP.</p>
         </div>
       ) : (
         <>
@@ -96,7 +112,7 @@ export function PrescriptionPhoto({ onRead, onCancel }: { onRead: (lines: string
             onPointerCancel={() => (start.current = null)}
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- vista previa local (blob:) del recorte */}
-            <img src={photo.url} alt="Foto de la receta para recortar" draggable={false} className="block max-h-[50vh] w-auto max-w-full" />
+            <img src={photo.url} alt="Foto de la receta para recortar" draggable={false} className="block max-h-[40vh] w-auto max-w-full" />
             {crop && crop.w > 0 && crop.h > 0 && (
               <div className="pointer-events-none absolute border-2 border-primary bg-primary/10" style={{ left: `${crop.x * 100}%`, top: `${crop.y * 100}%`, width: `${crop.w * 100}%`, height: `${crop.h * 100}%` }} />
             )}
