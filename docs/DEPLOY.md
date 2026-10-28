@@ -1,6 +1,7 @@
 # Despliegue en Vercel
 
-Proyecto: `farmacia-app` (equipo TECSUP). Se despliega solo al subir a `main` de
+Proyecto: `farmacia-app` (equipo TECSUP). Dirección pública: **https://nicfarma.vercel.app**
+(`farmacia.vercel.app` la usa otro proyecto). Se despliega solo al subir a `main` de
 `davidpontevega/Farmacia-App`.
 
 ## Ajustes del proyecto
