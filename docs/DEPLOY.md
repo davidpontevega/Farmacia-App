@@ -4,7 +4,7 @@ Proyecto: `farmacia-app` (equipo TECSUP). Se despliega solo al subir a `main` de
 `davidpontevega/Farmacia-App`.
 
 ## Ajustes del proyecto
-- **Root Directory:** `farmacia-next` (el repositorio también tiene los proyectos antiguos .NET/React).
+- **Root Directory:** `.` (por defecto). La app está en la raíz de este repositorio; poner otra carpeta hace fallar el despliegue con «Root Directory does not exist».
 - Framework: Next.js · Node 24.x · región de funciones `iad1` (la base de Neon está en `us-east-2`).
 - **Deployment Protection (Vercel Authentication): desactivada.** La app tiene su propio inicio de
   sesión (Clerk, solo por invitación) y la protección de Vercel bloquearía a los cajeros y al webhook de Clerk.
