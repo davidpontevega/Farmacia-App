@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatSoles, isValidSoles, toCents } from "@/lib/money";
 import { resolvePayment, type PaymentMethod } from "@/lib/sales";
+import { BRAND } from "@/lib/brand";
+import type { TicketData } from "@/lib/ticket";
 import { useCreateSale, useUploadProof } from "../hooks/use-sales";
 import { useCartStore } from "../store/cart-store";
 import { PAYMENT_LABEL } from "../types";
@@ -22,7 +24,7 @@ import { PhotoButton } from "./photo-button";
 const METHODS: PaymentMethod[] = ["CASH", "YAPE", "MIXED"];
 const centsOrUndefined = (v: string) => (isValidSoles(v) ? toCents(v) : undefined);
 
-export function PaymentDialog({ total, proofEnabled, onClose }: { total: number; proofEnabled: boolean; onClose: () => void }) {
+export function PaymentDialog({ total, proofEnabled, onSold, onClose }: { total: number; proofEnabled: boolean; onSold: (ticket: TicketData) => void; onClose: () => void }) {
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
   const sale = useCreateSale();
@@ -54,6 +56,18 @@ export function PaymentDialog({ total, proofEnabled, onClose }: { total: number;
             { duration: 8000 },
           );
           if (photo && r.yapeAmount > 0) upload.mutate({ saleId: r.id, photo });
+          onSold({
+            business: { name: BRAND.name, ruc: BRAND.ruc, address: BRAND.address },
+            ticketNumber: r.ticketNumber,
+            createdAt: r.createdAt,
+            userName: r.userName,
+            items: items.map((i) => ({ name: i.name, quantity: i.quantity, unitPrice: i.unitPrice })),
+            total: r.total,
+            paymentMethod: r.paymentMethod,
+            cashAmount: r.cashAmount,
+            yapeAmount: r.yapeAmount,
+            change: r.change,
+          });
           clear();
           onClose();
         },

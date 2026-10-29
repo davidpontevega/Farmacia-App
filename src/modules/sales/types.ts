@@ -36,6 +36,8 @@ export type CreateSaleResult = {
   yapeAmount: number;
   change: number;
   createdAt: string;
+  /** Quien cobró, para el ticket. */
+  userName: string;
 };
 
 export const PAYMENT_LABEL: Record<PaymentMethod, string> = {

@@ -36,6 +36,7 @@ Next.js 16 (App Router) · React 19 · TypeScript estricto · Tailwind 4 · shad
 | 022 | Control diario de la caja (caja única, turno vencido, cierre por supervisor) | Hecho |
 | 023 | Inicio, encabezado superior, menú agrupado y pulido visual | Hecho |
 | 024 | Detalle de una compra en el historial (qué se compró en cada lote) | Hecho |
+| 025 | Ticket de la venta (imprimir y enviar por WhatsApp) | Hecho |
 
 Los specs viven en [`docs/specs/`](docs/specs). La arquitectura y la estructura de carpetas están en [`docs/SETUP.md`](docs/SETUP.md); las reglas del proyecto, en [`CLAUDE.md`](CLAUDE.md).
 
@@ -70,6 +71,14 @@ npm run dev                  # http://localhost:3000
 2. En **User & authentication**, dejar activos solo correo y contraseña; quitar los proveedores sociales en **SSO connections**.
 3. Crear en **Users** el usuario con el mismo correo que `SUPER_ADMIN_EMAIL`. En su primer inicio de sesión queda enlazado al administrador sembrado.
 4. Opcional: registrar `<URL>/api/webhooks/clerk` con los eventos `user.created`, `user.updated` y `user.deleted`. Sin el webhook todo funciona; el enlace se hace en el primer inicio de sesión.
+
+## Impresora de tickets
+
+El ticket de venta (spec 025) se imprime con el navegador, sin driver especial en la app:
+
+1. Instala el driver de la ticketera (80 mm) en la PC de caja y déjala como impresora predeterminada.
+2. Para que imprima sin mostrar el diálogo, abre Chrome con `--kiosk-printing` (acceso directo: `chrome.exe --kiosk-printing https://nicfarma.vercel.app`).
+3. Sin impresora, el diálogo de impresión permite «Guardar como PDF».
 
 ## Comandos
 

@@ -11,7 +11,9 @@ import { cartTotal } from "@/lib/sales";
 import { useActiveShift } from "@/modules/cash/hooks/use-cash";
 import { useCartStore } from "../store/cart-store";
 import { CartTable } from "./cart-table";
+import type { TicketData } from "@/lib/ticket";
 import { PaymentDialog } from "./payment-dialog";
+import { SaleTicketDialog } from "./sale-ticket-dialog";
 import { PrescriptionDialog } from "./prescription-dialog";
 import { ProductCatalog } from "./product-catalog";
 
@@ -21,6 +23,7 @@ export function PosView({ proofEnabled, readerEnabled, openPrescription }: { pro
   const items = useCartStore((s) => s.items);
   const clear = useCartStore((s) => s.clear);
   const [paying, setPaying] = useState(false);
+  const [ticket, setTicket] = useState<TicketData | null>(null);
   const [prescribing, setPrescribing] = useState(openPrescription);
   const stale = data?.shift?.stale ?? false;
   const hasItems = items.length > 0;
@@ -107,7 +110,8 @@ export function PosView({ proofEnabled, readerEnabled, openPrescription }: { pro
       </aside>
 
       {prescribing && <PrescriptionDialog readerEnabled={readerEnabled} onClose={() => setPrescribing(false)} />}
-      {paying && <PaymentDialog total={total} proofEnabled={proofEnabled} onClose={() => setPaying(false)} />}
+      {paying && <PaymentDialog total={total} proofEnabled={proofEnabled} onSold={setTicket} onClose={() => setPaying(false)} />}
+      {ticket && <SaleTicketDialog ticket={ticket} onClose={() => setTicket(null)} />}
     </div>
   );
 }

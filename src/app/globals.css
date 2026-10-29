@@ -179,3 +179,20 @@
 @utility card-surface {
   @apply rounded-2xl border bg-card shadow-sm;
 }
+
+/* Ticket de venta (spec 025): en impresión solo sale #ticket-print, en papel de 80 mm. */
+@page {
+  size: 80mm auto;
+  margin: 0;
+}
+@media print {
+  body > :not(#ticket-print) {
+    display: none !important;
+  }
+  #ticket-print {
+    display: block !important;
+    width: 72mm;
+    margin: 0 auto;
+    padding: 4mm 0;
+  }
+}

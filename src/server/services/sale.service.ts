@@ -18,6 +18,7 @@ import * as inventoryRepo from "@/server/repositories/inventory.repository";
 import * as productRepo from "@/server/repositories/product.repository";
 import * as returnRepo from "@/server/repositories/return.repository";
 import * as saleRepo from "@/server/repositories/sale.repository";
+import * as userRepo from "@/server/repositories/user.repository";
 import { lockOpenShift } from "./cash.service";
 
 type Line = {
@@ -149,6 +150,7 @@ export async function createSale(userId: string, input: CreateSaleInput) {
       yapeAmount: payment.yapeAmount,
       change: payment.change,
       createdAt: sale.createdAt,
+      userName: (await userRepo.findById(userId, tx))?.name ?? "",
     };
   });
 }
