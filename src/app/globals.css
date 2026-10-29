@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-heading: var(--font-sans);
   --color-brand-50: var(--brand-50);
   --color-brand-100: var(--brand-100);
