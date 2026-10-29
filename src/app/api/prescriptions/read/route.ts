@@ -7,6 +7,9 @@ import { readPrescriptionPhoto } from "@/server/services/prescription-read.servi
 
 const bodySchema = z.object({ file: z.instanceof(File, { message: "Falta la imagen" }) });
 
+// La lectura puede tardar hasta ~55 s con el plan gratuito de Gemini (ver prescription-reader.ts).
+export const maxDuration = 60;
+
 export const POST = handle(async (req) => {
   const { user } = await requirePermission("sales.create");
   const form = await req.formData().catch(() => {
