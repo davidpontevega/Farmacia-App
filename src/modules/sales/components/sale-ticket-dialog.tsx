@@ -90,11 +90,11 @@ export function SaleTicketDialog({ ticket, onClose }: { ticket: TicketData; onCl
             <Button autoFocus onClick={() => window.print()}>
               <Printer aria-hidden /> Imprimir
             </Button>
-            <Button variant="outline" onClick={sendWhatsApp}>
+            <Button variant="success" onClick={sendWhatsApp}>
               <MessageCircle aria-hidden /> Enviar por WhatsApp
             </Button>
           </div>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="destructive" onClick={onClose}>
             Cerrar
           </Button>
         </DialogContent>
