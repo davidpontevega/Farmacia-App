@@ -118,7 +118,7 @@ function CashCard() {
       </div>
       <p className="text-sm text-muted-foreground">
         {shift ? (
-          <>La tiene <strong className="text-foreground">{shift.mine ? "tu usuario" : shift.ownerName}</strong> desde {formatDateTime(shift.openedAt)}. Es la única caja del local.</>
+          <>Turno abierto por <strong className="text-foreground">{shift.mine ? "tu usuario" : shift.ownerName}</strong> ({formatDateTime(shift.openedAt)}). Es la única caja del local.</>
         ) : (
           "No hay ningún turno abierto. Quien vaya a vender debe abrir su turno."
         )}
