@@ -344,6 +344,7 @@ export function PurchaseForm() {
         <div role="status" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-warning-ring/40 bg-warning-soft p-3 text-sm text-warning">
           <span>
             Hay un borrador de una compra sin registrar ({stored.rows.filter((r) => !isBlankRow(r)).length} fila(s)).
+            {stored.rows.some((r) => r.ocrRef) && " La imagen del documento no se guarda: revisa las filas marcadas contra la factura."}
           </span>
           <span className="flex gap-2">
             <Button size="sm" onClick={restore}>
