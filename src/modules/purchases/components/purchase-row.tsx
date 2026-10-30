@@ -24,7 +24,7 @@ type Props = {
 
 const cell = "px-1 py-1.5 align-top";
 /** En celular la columna «Producto» queda fija al desplazar de lado (z-20 con foco: su lista de sugerencias pasa sobre la fila de abajo). */
-export const STICKY_COL = "max-lg:sticky max-lg:left-0 max-lg:z-10 max-lg:bg-background max-lg:shadow-[2px_0_4px_rgb(0_0_0/0.08)] max-lg:focus-within:z-20";
+export const STICKY_COL = "max-lg:sticky max-lg:left-0 max-lg:z-10 max-lg:bg-card max-lg:shadow-[2px_0_4px_rgb(0_0_0/0.08)] max-lg:focus-within:z-20";
 /** «Lote» es opcional (vacío se genera solo): en celular se oculta. */
 export const OPTIONAL_COL = "max-lg:hidden";
 

@@ -14,12 +14,14 @@ const TABS: TabDef<Tab>[] = [
 
 export function PurchasesView() {
   const [tab, setTab] = useState<Tab>("new");
+  // Vive aquí (no en el formulario) para que cerrar el aviso valga aunque se cambie de pestaña.
+  const [noticeOpen, setNoticeOpen] = useState(true);
 
   return (
     <div className="flex flex-col gap-4">
       <TabBar label="Compras" idPrefix="compras" tabs={TABS} value={tab} onChange={setTab} />
       <div {...tabPanelProps("compras", tab)} className="flex flex-col gap-4">
-        {tab === "new" ? <PurchaseForm /> : <PurchasesTable />}
+        {tab === "new" ? <PurchaseForm noticeOpen={noticeOpen} onCloseNotice={() => setNoticeOpen(false)} /> : <PurchasesTable />}
       </div>
     </div>
   );

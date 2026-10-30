@@ -76,7 +76,7 @@ const focusRow = (index: number) =>
     0,
   );
 
-export function PurchaseForm() {
+export function PurchaseForm({ noticeOpen, onCloseNotice }: { noticeOpen: boolean; onCloseNotice: () => void }) {
   const today = todayLima();
   const { userId, can } = usePermissions();
   const key = userId ? draftKey(userId) : null;
@@ -90,7 +90,6 @@ export function PurchaseForm() {
   const [margin, setMargin] = useState("");
   const [rows, setRows] = useState<PurchaseRow[]>(() => [emptyRow()]);
   const [pasteOpen, setPasteOpen] = useState(false);
-  const [noticeOpen, setNoticeOpen] = useState(true);
   const [ocr, setOcr] = useState<{ id: string; fileName: string; pages: OcrRead["pages"]; rowCount: number; shippingCents: number; notes: string[] } | null>(null);
   const [focusRef, setFocusRef] = useState<string | null>(null);
   // Faltantes que el usuario desmarcó o marcó a mano (lo demás sigue la sugerencia).
@@ -335,7 +334,7 @@ export function PurchaseForm() {
         <div role="note" className="flex items-start gap-3 rounded-xl border bg-secondary p-3 text-sm text-secondary-foreground lg:hidden">
           <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <p className="flex-1">Cargar una compra es más cómodo en una computadora. En el celular puedes revisar y registrar.</p>
-          <button type="button" className="-m-2 flex size-11 shrink-0 items-center justify-center rounded-lg" aria-label="Cerrar aviso" onClick={() => setNoticeOpen(false)}>
+          <button type="button" className="-m-2 flex size-11 shrink-0 items-center justify-center rounded-lg" aria-label="Cerrar aviso" onClick={onCloseNotice}>
             <X className="size-4" aria-hidden="true" />
           </button>
         </div>
@@ -471,7 +470,7 @@ export function PurchaseForm() {
                 <TableHeader>
                   <TableRow>
                     {COLUMNS.map((c, i) => (
-                      <TableHead key={i} className={`whitespace-nowrap px-1 text-xs font-medium text-muted-foreground ${c === "Producto" ? `${STICKY_COL} max-lg:bg-card` : c === "Lote" ? OPTIONAL_COL : ""}`}>
+                      <TableHead key={i} className={`whitespace-nowrap px-1 text-xs font-medium text-muted-foreground ${c === "Producto" ? STICKY_COL : c === "Lote" ? OPTIONAL_COL : ""}`}>
                         {c}
                       </TableHead>
                     ))}
