@@ -2,31 +2,44 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiErrorMessage } from "@/lib/axios";
-import { formatSoles } from "@/lib/money";
 import { cartTotal } from "@/lib/sales";
 import { useActiveShift } from "@/modules/cash/hooks/use-cash";
 import { useCartStore } from "../store/cart-store";
-import { CartTable } from "./cart-table";
+import { CartBar } from "./cart-bar";
+import { CartPanel } from "./cart-panel";
 import type { TicketData } from "@/lib/ticket";
 import { PaymentDialog } from "./payment-dialog";
 import { SaleTicketDialog } from "./sale-ticket-dialog";
 import { PrescriptionDialog } from "./prescription-dialog";
 import { ProductCatalog } from "./product-catalog";
 
+const DESKTOP = "(min-width: 1024px)";
+const subscribeDesktop = (cb: () => void) => {
+  const mq = window.matchMedia(DESKTOP);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+};
+
 export function PosView({ proofEnabled, readerEnabled, openPrescription }: { proofEnabled: boolean; readerEnabled: boolean; openPrescription: boolean }) {
   const router = useRouter();
   const { data, isLoading, error } = useActiveShift();
   const items = useCartStore((s) => s.items);
-  const clear = useCartStore((s) => s.clear);
   const [paying, setPaying] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  // El foco entra al panel (no a «Vaciar», que es destructivo y es lo primero al tabular).
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const isDesktop = useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP).matches, () => false);
   const [ticket, setTicket] = useState<TicketData | null>(null);
   const [prescribing, setPrescribing] = useState(openPrescription);
   const stale = data?.shift?.stale ?? false;
   const hasItems = items.length > 0;
+
+  // El panel del celular se cierra solo si el carrito queda vacío (se vació o se vendió) o si la pantalla pasa a escritorio.
+  if (cartOpen && (!hasItems || isDesktop)) setCartOpen(false);
 
   // Viene de «Receta» en el Inicio del cajero (`?receta=1`): el parámetro ya cumplió su función, se quita de la dirección.
   useEffect(() => {
@@ -63,7 +76,7 @@ export function PosView({ proofEnabled, readerEnabled, openPrescription }: { pro
   const total = cartTotal(items);
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
+    <div className="grid gap-5 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start lg:pb-0">
       {data.shift.stale && (
         <div role="alert" className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-destructive lg:col-span-2">
           <p className="font-semibold">Tu turno de caja es de un día anterior</p>
@@ -77,37 +90,18 @@ export function PosView({ proofEnabled, readerEnabled, openPrescription }: { pro
       )}
       <ProductCatalog onPrescription={() => setPrescribing(true)} />
 
-      <aside aria-label="Venta actual" className="flex flex-col card-surface lg:sticky lg:top-4">
-        <div className="flex items-center justify-between border-b px-4 py-1">
-          <h2 className="flex items-center gap-2 text-base font-bold">
-            Venta actual
-            {hasItems && <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-bold text-secondary-foreground">{items.length} {items.length === 1 ? "producto" : "productos"}</span>}
-          </h2>
-          <Button variant="ghost" size="sm" className="text-destructive" disabled={items.length === 0} onClick={clear}>
-            Vaciar
-          </Button>
-        </div>
-        <div className="max-h-[44vh] overflow-y-auto px-4">
-          <CartTable />
-        </div>
-        <div className="flex flex-col gap-3 rounded-b-2xl bg-muted/50 p-4">
-          <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span className="tabular-nums">{formatSoles(total)}</span>
-            </div>
-            <div className="mt-1 flex items-baseline justify-between border-t pt-2 text-foreground">
-              <span className="text-sm font-semibold">Total</span>
-              <span className="text-3xl font-extrabold tracking-tight tabular-nums">{formatSoles(total)}</span>
-            </div>
-          </div>
-          <Button variant="success" size="lg" className="h-12 gap-3 text-base font-extrabold" disabled={!hasItems || stale} onClick={() => setPaying(true)}>
-            Cobrar {formatSoles(total)}
-            <kbd className="rounded-md bg-white/20 px-2 py-0.5 text-xs font-bold">F2</kbd>
-          </Button>
-          <p className="text-[11px] text-muted-foreground">Turno abierto · apertura {formatSoles(data.shift.openingAmount)}</p>
-        </div>
+      <aside aria-label="Venta actual" className="card-surface hidden flex-col lg:sticky lg:top-4 lg:flex">
+        <CartPanel openingAmount={data.shift.openingAmount} stale={stale} onPay={() => setPaying(true)} />
       </aside>
+
+      {!paying && !prescribing && !ticket && <CartBar stale={stale} onOpen={() => setCartOpen(true)} onPay={() => setPaying(true)} />}
+      {!isDesktop && (
+        <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+          <SheetContent ref={sheetRef} side="bottom" initialFocus={sheetRef} className="max-h-[85dvh] gap-0">
+            <CartPanel openingAmount={data.shift.openingAmount} stale={stale} inSheet onPay={() => { setCartOpen(false); setPaying(true); }} />
+          </SheetContent>
+        </Sheet>
+      )}
 
       {prescribing && <PrescriptionDialog readerEnabled={readerEnabled} onClose={() => setPrescribing(false)} />}
       {paying && <PaymentDialog total={total} proofEnabled={proofEnabled} onSold={setTicket} onClose={() => setPaying(false)} />}

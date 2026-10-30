@@ -1,7 +1,7 @@
 ---
 id: 027
 title: Carrito del punto de venta en celular (barra fija y panel)
-status: draft
+status: approved
 module: sales
 scope: all
 ---
@@ -21,16 +21,16 @@ Incluye: en pantallas menores a `lg`, una barra fija al pie con resumen y botón
 No incluye: cambios en escritorio, en el catálogo, en el cobro, en la API ni en la base de datos; revisar otras pantallas del sistema en celular.
 
 ## Criterios de aceptación
-- [ ] AC1 — Desde `lg` hacia arriba la pantalla queda exactamente igual que hoy (dos columnas, carrito lateral fijo). La barra y el panel no existen allí.
-- [ ] AC2 — Por debajo de `lg`, el carrito lateral deja de mostrarse en la página y aparece una barra fija al pie, siempre visible mientras se recorre el catálogo, con: cantidad de productos, total en soles y botón «Cobrar». Sin productos, la barra muestra «Carrito vacío» y «Cobrar» deshabilitado.
-- [ ] AC3 — Tocar la zona de resumen de la barra (cantidad y total) abre un panel deslizable desde abajo con el mismo contenido que hoy tiene «Venta actual»: líneas con − / + / quitar, «Vaciar», total y turno. Se cierra con una X, con tocar fuera o con Escape.
-- [ ] AC4 — «Cobrar» de la barra y el de dentro del panel abren el diálogo de cobro existente; con el turno vencido (`stale`) o sin productos están deshabilitados, igual que hoy. Al abrir el cobro desde el panel, el panel se cierra.
-- [ ] AC5 — Al agregar un producto desde el catálogo la barra se actualiza al instante (cantidad y total) sin abrir el panel ni mover el scroll. La cantidad se anuncia a lectores de pantalla (`aria-live="polite"`).
-- [ ] AC6 — Al terminar la venta (ticket) y al vaciar el carrito, el panel queda cerrado y la barra vuelve a «Carrito vacío».
-- [ ] AC7 — La barra no tapa contenido: la página reserva espacio inferior para ella, respeta el área segura del celular (`env(safe-area-inset-bottom)`) y los botones miden al menos 44 px de alto.
-- [ ] AC8 — La barra se oculta mientras hay un diálogo abierto (cobro, receta, ticket) para no superponerse; al cerrarlo reaparece.
-- [ ] AC9 — Accesibilidad: el panel es un diálogo con título «Venta actual», el foco entra al abrir y vuelve al botón que lo abrió al cerrar; la barra se alcanza con teclado; el estado no depende solo del color.
-- [ ] AC10 — La lógica de resumen del carrito (cantidad de productos y texto singular/plural) es una función pura con tests; `npm test`, `typecheck`, `lint` y `build` pasan.
+- [x] AC1 — Desde `lg` hacia arriba la pantalla queda exactamente igual que hoy (dos columnas, carrito lateral fijo). La barra y el panel no existen allí.
+- [x] AC2 — Por debajo de `lg`, el carrito lateral deja de mostrarse en la página y aparece una barra fija al pie, siempre visible mientras se recorre el catálogo, con: cantidad de productos, total en soles y botón «Cobrar». Sin productos, la barra muestra «Carrito vacío» y «Cobrar» deshabilitado.
+- [x] AC3 — Tocar la zona de resumen de la barra (cantidad y total) abre un panel deslizable desde abajo con el mismo contenido que hoy tiene «Venta actual»: líneas con − / + / quitar, «Vaciar», total y turno. Se cierra con una X, con tocar fuera o con Escape.
+- [x] AC4 — «Cobrar» de la barra y el de dentro del panel abren el diálogo de cobro existente; con el turno vencido (`stale`) o sin productos están deshabilitados, igual que hoy. Al abrir el cobro desde el panel, el panel se cierra.
+- [x] AC5 — Al agregar un producto desde el catálogo la barra se actualiza al instante (cantidad y total) sin abrir el panel ni mover el scroll. La cantidad se anuncia a lectores de pantalla (`aria-live="polite"`).
+- [x] AC6 — Al terminar la venta (ticket) y al vaciar el carrito, el panel queda cerrado y la barra vuelve a «Carrito vacío».
+- [x] AC7 — La barra no tapa contenido: la página reserva espacio inferior para ella, respeta el área segura del celular (`env(safe-area-inset-bottom)`) y los botones miden al menos 44 px de alto.
+- [x] AC8 — La barra se oculta mientras hay un diálogo abierto (cobro, receta, ticket) para no superponerse; al cerrarlo reaparece.
+- [x] AC9 — Accesibilidad: el panel es un diálogo con título «Venta actual», el foco entra al abrir y vuelve al botón que lo abrió al cerrar; la barra se alcanza con teclado; el estado no depende solo del color.
+- [x] AC10 — La lógica de resumen del carrito (cantidad de productos y texto singular/plural) es una función pura con tests; `npm test`, `typecheck`, `lint` y `build` pasan.
 - [ ] AC11 — Verificación manual en ancho de 360 px y 390 px, y en 1024 px o más para confirmar que escritorio no cambió.
 
 ## Datos

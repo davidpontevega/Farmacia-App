@@ -66,3 +66,7 @@ export function resolvePayment(p: {
 
 export const cartTotal = (items: { unitPrice: number; quantity: number }[]) =>
   items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+
+/** Texto corto del carrito para la barra del celular: «Carrito vacío», «1 producto», «3 productos». */
+export const cartCountLabel = (lines: number) =>
+  lines === 0 ? "Carrito vacío" : `${lines} ${lines === 1 ? "producto" : "productos"}`;

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { allocateFefo, cartTotal, formatTicket, resolvePayment } from "./sales";
+import { allocateFefo, cartCountLabel, cartTotal, formatTicket, resolvePayment } from "./sales";
 
 test("FEFO reparte entre lotes en orden y respeta el stock de cada uno", () => {
   const lots = [
@@ -74,4 +74,10 @@ test("el total debe ser positivo", () => {
 test("cartTotal suma precio por cantidad", () => {
   assert.equal(cartTotal([{ unitPrice: 250, quantity: 3 }, { unitPrice: 100, quantity: 2 }]), 950);
   assert.equal(cartTotal([]), 0);
+});
+
+test("cartCountLabel: vacío, singular y plural", () => {
+  assert.equal(cartCountLabel(0), "Carrito vacío");
+  assert.equal(cartCountLabel(1), "1 producto");
+  assert.equal(cartCountLabel(3), "3 productos");
 });

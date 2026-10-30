@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { esES } from "@clerk/localizations";
@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: BRAND.name,
   description: `Punto de venta · ${BRAND.name}`,
 };
+
+// «cover» hace que env(safe-area-inset-*) valga algo en iOS: la barra del carrito respeta el borde inferior.
+export const viewport: Viewport = { viewportFit: "cover" };
 
 // El paquete en español no trae el título de la pantalla de acceso («Continue to …» salía en inglés).
 const localization = {
