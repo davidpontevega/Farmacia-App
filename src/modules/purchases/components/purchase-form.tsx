@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Info, TriangleAlert } from "lucide-react";
+import { CheckCircle2, Info, TriangleAlert, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -47,7 +47,8 @@ import { OcrQuotePanel, type OcrRead } from "./ocr-quote-panel";
 import { OcrViewer } from "./ocr-viewer";
 import { PasteRowsDialog } from "./paste-rows-dialog";
 import { PurchaseHeader } from "./purchase-header";
-import { PurchaseRowView } from "./purchase-row";
+import { PurchaseActionBar } from "./purchase-action-bar";
+import { OPTIONAL_COL, PurchaseRowView, STICKY_COL } from "./purchase-row";
 import { ShortagesCoverPanel, useCoverSuggestions } from "./shortages-cover-panel";
 
 const NO_LINKS: SupplierLink[] = [];
@@ -89,6 +90,7 @@ export function PurchaseForm() {
   const [margin, setMargin] = useState("");
   const [rows, setRows] = useState<PurchaseRow[]>(() => [emptyRow()]);
   const [pasteOpen, setPasteOpen] = useState(false);
+  const [noticeOpen, setNoticeOpen] = useState(true);
   const [ocr, setOcr] = useState<{ id: string; fileName: string; pages: OcrRead["pages"]; rowCount: number; shippingCents: number; notes: string[] } | null>(null);
   const [focusRef, setFocusRef] = useState<string | null>(null);
   // Faltantes que el usuario desmarcó o marcó a mano (lo demás sigue la sugerencia).
@@ -319,24 +321,32 @@ export function PurchaseForm() {
   const submit = () =>
     create.mutate({ ...buildPayload(header, filled), ...(coversShortages.length > 0 ? { coversShortages } : {}) }, { onSuccess: reset });
 
+  const totalToStore = totals.stored + (otherCents ?? 0);
+  const cancel = () => {
+    if ((filled.length === 0 && ocr === null && isEmptyDraft(draft)) || window.confirm("¿Descartar esta compra? Se perderán las filas y el documento leído.")) reset();
+  };
+
   const card = "card-surface p-5";
   const linesLabel = `${filled.length} ${filled.length === 1 ? "fila" : "filas"}`;
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          className="h-11 px-5 font-semibold"
-          onClick={() => {
-            if ((filled.length === 0 && ocr === null && isEmptyDraft(draft)) || window.confirm("¿Descartar esta compra? Se perderán las filas y el documento leído.")) reset();
-          }}
-        >
+    <div className="flex flex-col gap-5 max-lg:pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      {noticeOpen && (
+        <div role="note" className="flex items-start gap-3 rounded-xl border bg-secondary p-3 text-sm text-secondary-foreground lg:hidden">
+          <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <p className="flex-1">Cargar una compra es más cómodo en una computadora. En el celular puedes revisar y registrar.</p>
+          <button type="button" className="-m-2 flex size-11 shrink-0 items-center justify-center rounded-lg" aria-label="Cerrar aviso" onClick={() => setNoticeOpen(false)}>
+            <X className="size-4" aria-hidden="true" />
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center justify-end gap-2 max-lg:hidden">
+        <Button type="button" variant="outline" className="h-11 px-5 font-semibold" onClick={cancel}>
           Cancelar
         </Button>
         <Button type="button" className="h-11 px-5 font-semibold" disabled={!canSubmit} onClick={submit}>
-          {create.isPending ? "Registrando…" : `Registrar compra · ${formatSoles(totals.stored + (otherCents ?? 0))}`}
+          {create.isPending ? "Registrando…" : `Registrar compra · ${formatSoles(totalToStore)}`}
         </Button>
       </div>
 
@@ -461,7 +471,7 @@ export function PurchaseForm() {
                 <TableHeader>
                   <TableRow>
                     {COLUMNS.map((c, i) => (
-                      <TableHead key={i} className="whitespace-nowrap px-1 text-xs font-medium text-muted-foreground">
+                      <TableHead key={i} className={`whitespace-nowrap px-1 text-xs font-medium text-muted-foreground ${c === "Producto" ? `${STICKY_COL} max-lg:bg-card` : c === "Lote" ? OPTIONAL_COL : ""}`}>
                         {c}
                       </TableHead>
                     ))}
@@ -541,6 +551,7 @@ export function PurchaseForm() {
       <ShortagesCoverPanel suggestions={covers} isChecked={isCovered} onToggle={(k, v) => setCoverOverrides((o) => ({ ...o, [k]: v }))} />
 
       {pasteOpen && <PasteRowsDialog onAdd={addPasted} onClose={() => setPasteOpen(false)} />}
+      {!pasteOpen && <PurchaseActionBar totalCents={totalToStore} canSubmit={canSubmit} pending={create.isPending} onCancel={cancel} onSubmit={submit} />}
     </div>
   );
 }

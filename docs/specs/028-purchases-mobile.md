@@ -1,7 +1,7 @@
 ---
 id: 028
 title: Compras en celular (aviso, columna fija y barra de acciones)
-status: draft
+status: approved
 module: purchases
 scope: admin
 ---

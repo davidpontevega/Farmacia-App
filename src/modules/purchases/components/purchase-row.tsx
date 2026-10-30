@@ -23,6 +23,10 @@ type Props = {
 };
 
 const cell = "px-1 py-1.5 align-top";
+/** En celular la columna «Producto» queda fija al desplazar de lado (z-20 con foco: su lista de sugerencias pasa sobre la fila de abajo). */
+export const STICKY_COL = "max-lg:sticky max-lg:left-0 max-lg:z-10 max-lg:bg-background max-lg:shadow-[2px_0_4px_rgb(0_0_0/0.08)] max-lg:focus-within:z-20";
+/** «Lote» es opcional (vacío se genera solo): en celular se oculta. */
+export const OPTIONAL_COL = "max-lg:hidden";
 
 export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove, onDuplicate, onEnterLast, onFocusRow }: Props) {
   const set = (patch: Partial<PurchaseRow>) => onChange(row.key, patch);
@@ -52,7 +56,7 @@ export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove
   return (
     <TableRow data-row={index} onClick={() => onFocusRow?.(row.ocrRef ?? null)} onFocusCapture={() => onFocusRow?.(row.ocrRef ?? null)} className={errors.length ? "bg-destructive/5" : pendingWarnings ? "bg-warning-soft" : undefined}>
       <TableCell className={cell}>{field("supplierCode", "Código del proveedor", "w-24")}</TableCell>
-      <TableCell className={cell}>
+      <TableCell className={`${cell} ${STICKY_COL}`}>
         <PurchaseProductCell row={row} rowLabel={`fila ${index + 1}`} catalog={catalog} onChange={set} />
       </TableCell>
       <TableCell className={cell}>{field("qty", "Cantidad", "w-16", { inputMode: "numeric" })}</TableCell>
@@ -70,7 +74,7 @@ export function PurchaseRowView({ row, index, today, catalog, onChange, onRemove
       <TableCell className={cell}>{field("packagePrice", "Precio de la presentación (S/)", "w-20", { inputMode: "decimal" })}</TableCell>
       <TableCell className={cell}>{field("lineTotal", "Total de la línea (S/)", "w-20", { inputMode: "decimal" })}</TableCell>
       <TableCell className={cell}>{field("expiry", "Vencimiento", "w-28", { placeholder: "dd/mm/aaaa" })}</TableCell>
-      <TableCell className={cell}>{field("lot", "Lote", "w-24", { placeholder: "automático" })}</TableCell>
+      <TableCell className={`${cell} ${OPTIONAL_COL}`}>{field("lot", "Lote", "w-24", { placeholder: "automático" })}</TableCell>
       <TableCell className={cell}>
         <Input
           aria-label={`Precio de venta, fila ${index + 1}`}
