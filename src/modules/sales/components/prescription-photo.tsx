@@ -70,10 +70,6 @@ export function PrescriptionPhoto({ onRead, onCancel }: { onRead: (lines: string
 
   return (
     <div className="flex flex-col gap-3">
-      <p role="note" className="rounded-lg bg-warning-soft px-3 py-2 text-xs text-warning">
-        Piloto: la imagen recortada se envía a Google (plan gratuito) para leerla. No incluyas datos del paciente.
-      </p>
-
       {!photo ? (
         <div className="flex flex-col items-start gap-2">
           <input
